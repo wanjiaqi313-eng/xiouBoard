@@ -13,6 +13,11 @@
     --theme-text-dim: #888;
     --theme-hover: #3A3A3A;
     --theme-active: #0078D7;
+    
+    /* 默认亚克力玻璃参数 */
+    --glass-alpha: 0.15;
+    --glass-blur: 18px;
+    --glass-highlight: 4px;
   }
   .light-mode {
     --theme-bg: #F5F7FA;
@@ -22,6 +27,8 @@
     --theme-text-dim: #666666;
     --theme-hover: #E8F1FE;
     --theme-active: #0078D7;
+    
+    --glass-alpha: 0.25;
   }
 
   * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -29,7 +36,7 @@
     width: 100%; height: 100%; overflow: hidden; background: var(--theme-bg);
     font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
     user-select: none; transition: background 0.3s;
-    touch-action: manipulation;
+    touch-action: none;
   }
 
   #brightnessMask { position: fixed; inset: 0; pointer-events: none; z-index: 9999; background: #000; opacity: 0; transition: opacity 0.2s; }
@@ -56,152 +63,297 @@
     box-shadow: 0 2px 8px rgba(0,0,0,0.3);
   }
 
-  #bottomToolbar {
-    position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%);
-    background: var(--theme-panel); border-radius: 12px;
-    display: flex; align-items: center; padding: 6px 12px; gap: 8px;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.15); z-index: 100;
-    border: 1px solid var(--theme-border); transition: background 0.3s;
+  /* ====== 浮动工具栏通用 ====== */
+  #bottomToolbar, #btnMenu, #pageControls {
+    transition: top 0.3s, bottom 0.3s, left 0.3s, right 0.3s, transform 0.3s, opacity 0.15s, background 0.3s;
   }
+
+  #bottomToolbar {
+    position: absolute;
+    background: var(--theme-panel); border-radius: 12px;
+    display: flex; align-items: center; padding: 4px 8px; gap: 4px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.15); z-index: 100;
+    border: 1px solid var(--theme-border);
+  }
+  
   .tool-btn {
-    width: 56px; height: 48px; border-radius: 10px; border: none;
-    background: transparent; color: var(--theme-text); font-size: 22px;
+    width: 44px; height: 44px; border-radius: 8px; border: none;
+    background: transparent; color: var(--theme-text);
     display: flex; flex-direction: column; align-items: center; justify-content: center;
     cursor: pointer; transition: background 0.15s, color 0.15s; gap: 2px;
   }
   .tool-btn:hover { background: var(--theme-hover); }
   .tool-btn.active { background: var(--theme-active); color: #FFF; }
-  .tool-btn .label { font-size: 10px; opacity: 0.8; }
-  .tool-btn svg { width: 22px; height: 22px; pointer-events: none; }
+  .tool-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+  .tool-btn .label { font-size: 9px; opacity: 0.8; }
+  .tool-btn svg { width: 18px; height: 18px; pointer-events: none; }
 
-  #btnSettings {
-    position: absolute; bottom: 20px; left: 20px;
-    width: 48px; height: 48px; border-radius: 50%; border: 1px solid var(--theme-border);
+  #btnMenu {
+    position: absolute; z-index: 100;
+    width: 44px; height: 44px; border-radius: 10px; border: 1px solid var(--theme-border);
     background: var(--theme-panel); color: var(--theme-text);
     display: flex; align-items: center; justify-content: center;
-    cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.15); z-index: 100;
-    transition: transform 0.2s, background 0.3s;
+    cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.15);
   }
-  #btnSettings:hover { transform: rotate(45deg); background: var(--theme-hover); }
-  #btnSettings svg { pointer-events: none; }
+  #btnMenu:active { transform: scale(0.95); background: var(--theme-hover); }
+  #btnMenu svg { width: 20px; height: 20px; pointer-events: none; }
 
   #pageControls {
-    position: absolute; bottom: 20px; right: 20px;
+    position: absolute; z-index: 100;
     background: var(--theme-panel); border-radius: 10px;
-    display: flex; align-items: center; padding: 6px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.15); z-index: 100;
-    border: 1px solid var(--theme-border); gap: 6px; transition: background 0.3s;
+    display: flex; align-items: center; padding: 4px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    border: 1px solid var(--theme-border); gap: 4px;
   }
   .page-btn {
-    width: 32px; height: 32px; border-radius: 6px; border: none;
+    width: 28px; height: 28px; border-radius: 6px; border: none;
     background: transparent; color: var(--theme-text); cursor: pointer;
-    display: flex; align-items: center; justify-content: center; font-size: 16px;
+    display: flex; align-items: center; justify-content: center; font-size: 14px;
   }
   .page-btn:hover { background: var(--theme-hover); }
   .page-btn:disabled { opacity: 0.3; cursor: not-allowed; }
-  #pageIndicator { font-size: 13px; color: var(--theme-text); min-width: 50px; text-align: center; }
+  #pageIndicator { font-size: 12px; color: var(--theme-text); min-width: 45px; text-align: center; }
+
+  /* ====== 布局适配逻辑 ====== */
+  body.layout-bottom #bottomToolbar { left: 50%; bottom: 20px; transform: translateX(-50%); flex-direction: row; }
+  body.layout-bottom #btnMenu { left: 20px; bottom: 20px; top: auto; right: auto; }
+  body.layout-bottom #pageControls { right: 20px; bottom: 20px; left: auto; top: auto; flex-direction: row; }
+
+  body.layout-top #bottomToolbar { left: 50%; top: 20px; bottom: auto; transform: translateX(-50%); flex-direction: row; }
+  body.layout-top #btnMenu { left: 20px; top: 20px; bottom: auto; right: auto; }
+  body.layout-top #pageControls { right: 20px; top: 20px; bottom: auto; left: auto; flex-direction: row; }
+
+  /* 侧边栏极致瘦身，防止重叠 */
+  body.layout-left #bottomToolbar { 
+    left: 20px; top: 50%; bottom: auto; transform: translateY(-50%); 
+    flex-direction: column; padding: 2px; gap: 2px; max-height: 80vh; 
+  }
+  body.layout-left .tool-btn { width: 36px; height: 36px; }
+  body.layout-left .tool-btn svg { width: 16px; height: 16px; }
+  body.layout-left .tool-btn .label { display: none; }
+  body.layout-left #btnMenu { left: 20px; top: 20px; bottom: auto; right: auto; }
+  body.layout-left #pageControls { left: 20px; bottom: 20px; right: auto; top: auto; flex-direction: row; }
+
+  body.layout-right #bottomToolbar { 
+    right: 20px; top: 50%; bottom: auto; left: auto; transform: translateY(-50%); 
+    flex-direction: column; padding: 2px; gap: 2px; max-height: 80vh; 
+  }
+  body.layout-right .tool-btn { width: 36px; height: 36px; }
+  body.layout-right .tool-btn svg { width: 16px; height: 16px; }
+  body.layout-right .tool-btn .label { display: none; }
+  body.layout-right #btnMenu { right: 20px; top: 20px; bottom: auto; left: auto; }
+  body.layout-right #pageControls { right: 20px; bottom: 20px; left: auto; top: auto; flex-direction: row; }
+
+  /* ====== 菜单面板统一样式（动态定位） ====== */
+  .float-panel, .menu-panel, #toolsMenu, #toolControl {
+    position: absolute;
+    opacity: 0; transform: scale(0.92);
+    transition: opacity 0.2s ease, transform 0.2s cubic-bezier(0.34, 1.2, 0.64, 1);
+    pointer-events: none; visibility: hidden;
+    z-index: 200;
+  }
+  .float-panel.show, .menu-panel.show, #toolsMenu.show, #toolControl.show {
+    opacity: 1; transform: scale(1);
+    pointer-events: auto; visibility: visible;
+  }
 
   .float-panel {
-    position: absolute; bottom: 85px; background: var(--theme-panel);
-    border: 1px solid var(--theme-border); border-radius: 10px;
-    box-shadow: 0 8px 30px rgba(0,0,0,0.2);
-    z-index: 200; display: none; padding: 12px;
-    flex-direction: column; gap: 12px; color: var(--theme-text);
+    background: var(--theme-panel); border: 1px solid var(--theme-border);
+    border-radius: 10px; box-shadow: 0 8px 30px rgba(0,0,0,0.2);
+    display: flex; padding: 10px; width: 240px; flex-direction: column; gap: 10px; color: var(--theme-text);
   }
-  .float-panel.show { display: flex; }
-  .panel-arrow {
-    position: absolute; bottom: -6px; width: 12px; height: 12px;
-    background: var(--theme-panel); border-right: 1px solid var(--theme-border); border-bottom: 1px solid var(--theme-border);
-    transform: rotate(45deg); left: 50%; margin-left: -6px;
-  }
+  #eraserSettings { align-items: center; width: 200px; }
 
-  #penSettings { width: 260px; left: 50%; transform: translateX(-50%); }
-  .panel-row { display: flex; flex-direction: column; gap: 6px; }
+  .panel-row { display: flex; flex-direction: column; gap: 4px; width: 100%; }
   .panel-title { font-size: 11px; color: var(--theme-text-dim); margin-bottom: 2px; }
   
   .brush-types { display: flex; gap: 4px; flex-wrap: wrap; }
   .brush-type-btn {
-    padding: 4px 10px; border-radius: 6px; background: var(--theme-hover);
-    border: 1px solid var(--theme-border); color: var(--theme-text); font-size: 12px;
-    cursor: pointer;
+    padding: 4px 8px; border-radius: 6px; background: var(--theme-hover);
+    border: 1px solid var(--theme-border); color: var(--theme-text); font-size: 11px; cursor: pointer;
   }
   .brush-type-btn.active { background: var(--theme-active); color: #FFF; border-color: var(--theme-active); }
 
   .color-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px; }
   .color-cell {
-    width: 28px; height: 28px; border-radius: 50%; cursor: pointer;
+    width: 24px; height: 24px; border-radius: 50%; cursor: pointer;
     border: 2px solid transparent; transition: transform 0.1s;
   }
-  .color-cell:hover { transform: scale(1.15); }
   .color-cell.active { border-color: #FFF; box-shadow: 0 0 0 2px var(--theme-active); }
 
-  .size-slider-row { display: flex; align-items: center; gap: 10px; }
-  .size-slider-row input[type=range] {
-    flex: 1; height: 4px; -webkit-appearance: none; background: #555; border-radius: 2px; outline: none;
-  }
-  .size-slider-row input[type=range]::-webkit-slider-thumb {
-    -webkit-appearance: none; width: 16px; height: 16px; border-radius: 50%; background: var(--theme-active); cursor: pointer;
-    border: 2px solid #FFF; box-shadow: 0 1px 3px rgba(0,0,0,0.3);
-  }
-  #sizePreview {
-    width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;
-    background: var(--theme-hover); border-radius: 6px; border: 1px solid var(--theme-border);
-  }
+  .size-slider-row { display: flex; align-items: center; gap: 8px; }
+  input[type=range] { flex: 1; height: 4px; -webkit-appearance: none; background: #555; border-radius: 2px; outline: none; }
+  input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 14px; height: 14px; border-radius: 50%; background: var(--theme-active); cursor: pointer; border: 2px solid #FFF; }
+  #sizePreview { width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; background: var(--theme-hover); border-radius: 6px; border: 1px solid var(--theme-border); }
   #sizeDot { background: var(--theme-text); border-radius: 50%; }
 
-  #eraserSettings { width: 180px; left: 50%; transform: translateX(-50%); align-items: center; }
-  .eraser-action {
-    width: 100%; padding: 10px; border-radius: 8px; background: var(--theme-hover);
-    border: 1px solid var(--theme-border); color: var(--theme-text); cursor: pointer; text-align: center;
-    font-size: 13px; transition: all 0.2s;
-  }
+  .eraser-action { width: 100%; padding: 8px; border-radius: 8px; background: var(--theme-hover); border: 1px solid var(--theme-border); color: var(--theme-text); cursor: pointer; text-align: center; font-size: 12px; transition: all 0.2s; }
   .eraser-action:hover { background: #E53935; border-color: #E53935; color: #FFF; }
 
-  #settingsPanel {
-    position: absolute; bottom: 80px; left: 20px;
-    width: 260px; background: var(--theme-panel); border: 1px solid var(--theme-border);
-    border-radius: 12px; padding: 16px; box-shadow: 0 8px 30px rgba(0,0,0,0.2);
-    display: none; flex-direction: column; gap: 16px; z-index: 200; color: var(--theme-text);
+  .menu-panel {
+    width: 200px;
+    background: var(--theme-panel); border: 1px solid var(--theme-border);
+    border-radius: 12px; box-shadow: 0 8px 30px rgba(0,0,0,0.2);
+    display: flex; flex-direction: column; color: var(--theme-text); overflow: hidden;
   }
-  #settingsPanel.show { display: flex; }
-  .setting-section { display: flex; flex-direction: column; gap: 8px; }
-  .setting-label { font-size: 12px; color: var(--theme-text-dim); }
-  .theme-btns { display: flex; gap: 8px; }
-  .theme-btn {
-    flex: 1; height: 36px; border-radius: 8px; border: 2px solid transparent;
-    background: var(--theme-hover); color: var(--theme-text); cursor: pointer; font-size: 12px;
-  }
+  #moreMenu { padding: 6px; }
+  .menu-item { display: flex; align-items: center; justify-content: space-between; padding: 10px 12px; border-radius: 8px; cursor: pointer; font-size: 13px; transition: background 0.15s; }
+  .menu-item:hover { background: var(--theme-hover); }
+  .menu-item svg { width: 16px; height: 16px; opacity: 0.6; }
+  .sub-menu-header { display: flex; align-items: center; padding: 10px 12px; border-bottom: 1px solid var(--theme-border); cursor: pointer; font-size: 13px; font-weight: bold; }
+  .sub-menu-header:hover { background: var(--theme-hover); }
+  .sub-menu-header svg { width: 16px; height: 16px; margin-right: 6px; }
+  .sub-menu-content { padding: 12px; display: flex; flex-direction: column; gap: 12px; }
+  
+  .setting-section { display: flex; flex-direction: column; gap: 6px; }
+  .setting-label-row { display: flex; justify-content: space-between; align-items: center; font-size: 11px; color: var(--theme-text-dim); }
+  .val-display { color: var(--theme-text); font-weight: bold; }
+  
+  .theme-btns { display: flex; gap: 6px; }
+  .theme-btn { flex: 1; height: 28px; border-radius: 6px; border: 2px solid transparent; background: var(--theme-hover); color: var(--theme-text); cursor: pointer; font-size: 11px; }
   .theme-btn.active { border-color: var(--theme-active); }
-  .board-colors { display: flex; gap: 8px; }
-  .board-color {
-    width: 36px; height: 36px; border-radius: 50%; border: 2px solid transparent; cursor: pointer;
-  }
+  .board-colors { display: flex; gap: 6px; }
+  .board-color { width: 28px; height: 28px; border-radius: 50%; border: 2px solid transparent; cursor: pointer; }
   .board-color.active { border-color: var(--theme-active); box-shadow: 0 0 0 2px var(--theme-panel) inset; }
+  .brightness-row { display: flex; align-items: center; gap: 8px; }
+  
+  .about-content { font-size: 11px; color: var(--theme-text-dim); line-height: 1.5; }
+  .about-content strong { color: var(--theme-text); font-size: 14px; display: block; margin-bottom: 2px; }
+  .about-content a { color: var(--theme-active); text-decoration: none; word-break: break-all; }
 
-  .brightness-row { display: flex; align-items: center; gap: 8px; margin-top: 8px; }
-  .brightness-row input[type=range] { flex: 1; height: 4px; -webkit-appearance: none; background: #555; border-radius: 2px; }
-  .brightness-row input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 14px; height: 14px; border-radius: 50%; background: #0078D7; cursor: pointer; }
+  /* 视觉预览区 */
+  .glass-preview-container {
+    width: 100%; height: 80px; border-radius: 8px; overflow: hidden; position: relative;
+    background: linear-gradient(135deg, #FF9A9E 0%, #FECFEF 99%, #FECFEF 100%);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .glass-preview-box {
+    width: 80px; height: 60px; border-radius: 12px;
+    background: rgba(255, 255, 255, var(--glass-alpha));
+    backdrop-filter: blur(var(--glass-blur)) saturate(150%);
+    -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(150%);
+    border: 1px solid rgba(255,255,255,0.6);
+    box-shadow: inset 0 0 var(--glass-highlight) rgba(255,255,255,0.9), 0 4px 12px rgba(0,0,0,0.1);
+    transition: all 0.1s;
+  }
+
+  /* 全局磨砂透明效果 */
+  body.glass-active #bottomToolbar,
+  body.glass-active #btnMenu,
+  body.glass-active #pageControls,
+  body.glass-active .menu-panel,
+  body.glass-active .float-panel,
+  body.glass-active #toolsMenu,
+  body.glass-active #toolControl,
+  body.glass-active #selectionMenu {
+    background: rgba(45, 45, 45, var(--glass-alpha));
+    backdrop-filter: blur(var(--glass-blur)) saturate(180%);
+    -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(180%);
+    border: 1px solid rgba(255,255,255,0.15);
+    box-shadow: inset 0 1px var(--glass-highlight) rgba(255,255,255,0.4), 0 8px 32px rgba(0,0,0,0.25);
+  }
+  
+  body.light-mode.glass-active #bottomToolbar,
+  body.light-mode.glass-active #btnMenu,
+  body.light-mode.glass-active #pageControls,
+  body.light-mode.glass-active .menu-panel,
+  body.light-mode.glass-active .float-panel,
+  body.light-mode.glass-active #toolsMenu,
+  body.light-mode.glass-active #toolControl,
+  body.light-mode.glass-active #selectionMenu {
+    background: rgba(255, 255, 255, var(--glass-alpha));
+    border: 1px solid rgba(0,0,0,0.1);
+    box-shadow: inset 0 1px var(--glass-highlight) rgba(255,255,255,1), 0 8px 32px rgba(0,0,0,0.1);
+  }
+
+  .menu-item:hover, .theme-btn, .brush-type-btn, .eraser-action {
+    background: rgba(128, 128, 128, 0.2) !important;
+  }
+  .tool-btn:hover { background: rgba(128, 128, 128, 0.2) !important; }
+
+  /* 布局选择菜单 */
+  .layout-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 12px;
+  }
+  .layout-item {
+    display: flex; flex-direction: column; align-items: center; gap: 4px;
+    cursor: pointer; padding: 6px; border-radius: 8px; background: var(--theme-hover); border: 1px solid var(--theme-border);
+  }
+  .layout-item:hover { background: var(--theme-border); }
+  .layout-preview {
+    width: 50px; height: 34px; border: 1px solid #888; border-radius: 4px; position: relative;
+  }
+  .layout-preview::after {
+    content: ''; position: absolute; background: var(--theme-active); border-radius: 2px;
+  }
+  .layout-item[data-layout="bottom"] .layout-preview::after { bottom: 2px; left: 50%; transform: translateX(-50%); width: 24px; height: 6px; }
+  .layout-item[data-layout="top"] .layout-preview::after { top: 2px; left: 50%; transform: translateX(-50%); width: 24px; height: 6px; }
+  .layout-item[data-layout="left"] .layout-preview::after { left: 2px; top: 50%; transform: translateY(-50%); width: 6px; height: 20px; }
+  .layout-item[data-layout="right"] .layout-preview::after { right: 2px; top: 50%; transform: translateY(-50%); width: 6px; height: 20px; }
+  .layout-item span { font-size: 11px; }
+
+  .toggle-row { display: flex; align-items: center; justify-content: space-between; font-size: 13px; }
+  .toggle-switch { position: relative; display: inline-block; width: 36px; height: 20px; }
+  .toggle-switch input { opacity: 0; width: 0; height: 0; }
+  .toggle-slider { position: absolute; cursor: pointer; inset: 0; background-color: #777; transition: .3s; border-radius: 20px; }
+  .toggle-slider:before { position: absolute; content: ""; height: 14px; width: 14px; left: 3px; bottom: 3px; background-color: white; transition: .3s; border-radius: 50%; }
+  input:checked + .toggle-slider { background-color: var(--theme-active); }
+  input:checked + .toggle-slider:before { transform: translateX(16px); }
+
+  #toolsMenu {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; padding: 12px;
+    background: var(--theme-panel); border: 1px solid var(--theme-border);
+    border-radius: 12px; box-shadow: 0 8px 30px rgba(0,0,0,0.2);
+  }
+  .tool-grid-item {
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    width: 60px; height: 60px; background: var(--theme-hover); border-radius: 8px;
+    cursor: pointer; gap: 4px; transition: background 0.15s; color: var(--theme-text); font-size: 11px;
+  }
+  .tool-grid-item:hover { background: var(--theme-border); }
+  .tool-grid-item svg { width: 24px; height: 24px; }
+
+  #toolControl {
+    padding: 10px 12px; border-radius: 10px; width: 240px;
+    background: var(--theme-panel); border: 1px solid var(--theme-border);
+    box-shadow: 0 8px 30px rgba(0,0,0,0.2);
+    display: flex; flex-direction: column; gap: 8px; color: var(--theme-text);
+  }
+  .rc-row { display: flex; align-items: center; justify-content: space-between; font-size: 11px; }
+  .rc-row input[type=range] { width: 100px; }
+  .rc-close { padding: 6px; background: #E53935; color: #FFF; border-radius: 6px; text-align: center; cursor: pointer; font-size: 11px; margin-top: 2px; }
 
   #selectionMenu {
     position: absolute; display: none; background: var(--theme-panel);
     border-radius: 10px; box-shadow: 0 4px 20px rgba(0,0,0,0.2);
-    border: 1px solid var(--theme-border); padding: 8px 12px; gap: 10px; align-items: center;
+    border: 1px solid var(--theme-border); padding: 6px 10px; gap: 8px; align-items: center;
     z-index: 150; transform: translateX(-50%);
   }
   #selectionMenu.show { display: flex; }
-  .sm-btn {
-    background: var(--theme-hover); border: 1px solid var(--theme-border); color: var(--theme-text);
-    border-radius: 6px; padding: 6px 12px; font-size: 13px; cursor: pointer; transition: all 0.2s;
-  }
+  .sm-btn { background: var(--theme-hover); border: 1px solid var(--theme-border); color: var(--theme-text); border-radius: 6px; padding: 4px 10px; font-size: 12px; cursor: pointer; transition: all 0.2s; }
   .sm-btn:hover { background: var(--theme-border); }
   .sm-btn.danger { color: #ff6b6b; border-color: rgba(255,107,107,0.5); }
   .sm-btn.danger:hover { background: #ff6b6b; color: #FFF; }
-  .sm-divider { width: 1px; height: 18px; background: var(--theme-border); margin: 0 4px; }
-  .sm-color { width: 22px; height: 22px; border-radius: 50%; cursor: pointer; border: 2px solid transparent; transition: transform 0.1s; }
-  .sm-color:hover { transform: scale(1.15); }
+  .sm-divider { width: 1px; height: 16px; background: var(--theme-border); margin: 0 2px; }
+  .sm-color { width: 20px; height: 20px; border-radius: 50%; cursor: pointer; border: 2px solid transparent; transition: transform 0.1s; }
+
+  /* 更新提示弹窗 */
+  #updateToast {
+    position: fixed; top: 20px; right: -350px; width: 300px;
+    background: var(--theme-panel); border: 1px solid var(--theme-border);
+    border-radius: 12px; box-shadow: 0 8px 30px rgba(0,0,0,0.3);
+    padding: 16px; z-index: 9999; color: var(--theme-text);
+    transition: right 0.6s cubic-bezier(0.25, 1, 0.5, 1);
+  }
+  #updateToast.show { right: 20px; }
+  #updateToast h3 { font-size: 15px; margin-bottom: 8px; color: var(--theme-active); }
+  #updateToast p { font-size: 12px; color: var(--theme-text-dim); margin-bottom: 12px; line-height: 1.4; }
+  .update-actions { display: flex; gap: 10px; justify-content: flex-end; }
+  .update-btn { padding: 6px 12px; border-radius: 6px; font-size: 12px; cursor: pointer; border: 1px solid var(--theme-border); background: var(--theme-hover); color: var(--theme-text); }
+  .update-btn.primary { background: var(--theme-active); color: #FFF; border-color: var(--theme-active); }
 </style>
 </head>
-<body class="dark-mode">
+<body class="dark-mode layout-bottom">
 
 <div id="rotateTip">
   <svg viewBox="0 0 24 24" fill="none" stroke="#0078D7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect><line x1="12" y1="18" x2="12.01" y2="18"></line></svg>
@@ -210,6 +362,16 @@
 </div>
 
 <div id="brightnessMask"></div>
+
+<!-- 更新弹窗 -->
+<div id="updateToast">
+  <h3>发现新版本</h3>
+  <p>检测到西欧白板有更新，建议您下载最新版本以获得最佳体验。</p>
+  <div class="update-actions">
+    <button class="update-btn" id="btnLater">稍后更新</button>
+    <button class="update-btn primary" id="btnUpdateNow">前往下载</button>
+  </div>
+</div>
 
 <div id="canvasContainer">
   <canvas id="bgCanvas" style="position:absolute; inset:0; width:100%; height:100%; z-index:1; pointer-events:none;"></canvas>
@@ -220,44 +382,142 @@
     <button class="sm-btn" id="smClone">克隆</button>
     <button class="sm-btn danger" id="smDelete">删除</button>
     <div class="sm-divider"></div>
-    <div id="smColors" style="display:flex; gap:6px;"></div>
+    <div id="smColors" style="display:flex; gap:4px;"></div>
   </div>
 </div>
 
-<button id="btnSettings" title="设置">
-  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+<button id="btnMenu" title="菜单">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <line x1="3" y1="12" x2="21" y2="12"></line>
+    <line x1="3" y1="6" x2="21" y2="6"></line>
+    <line x1="3" y1="18" x2="21" y2="18"></line>
+  </svg>
 </button>
 
-<div id="settingsPanel">
-  <div class="setting-section">
-    <div class="setting-label">界面主题</div>
-    <div class="theme-btns">
-      <button class="theme-btn active" data-theme="dark">深色模式</button>
-      <button class="theme-btn" data-theme="light">浅色模式</button>
+<div id="moreMenu" class="menu-panel">
+  <div class="menu-item" id="btnGoLayout"><span>界面布局</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg></div>
+  <div class="menu-item" id="btnGoGlass"><span>视觉效果</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg></div>
+  <div class="menu-item" id="btnGoTheme"><span>主题设置</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg></div>
+  <div class="menu-item" id="btnGoAbout"><span>关于白板</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg></div>
+</div>
+
+<div id="layoutMenu" class="menu-panel">
+  <div class="sub-menu-header" id="btnBackFromLayout"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"></polyline></svg>界面布局</div>
+  <div class="layout-grid">
+    <div class="layout-item" data-layout="bottom"><div class="layout-preview"></div><span>底部居中</span></div>
+    <div class="layout-item" data-layout="top"><div class="layout-preview"></div><span>顶部居中</span></div>
+    <div class="layout-item" data-layout="left"><div class="layout-preview"></div><span>左侧边缘</span></div>
+    <div class="layout-item" data-layout="right"><div class="layout-preview"></div><span>右侧边缘</span></div>
+  </div>
+</div>
+
+<div id="glassMenu" class="menu-panel">
+  <div class="sub-menu-header" id="btnBackFromGlass"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"></polyline></svg>视觉效果</div>
+  <div class="sub-menu-content" style="gap: 10px;">
+    
+    <div class="glass-preview-container">
+      <div class="glass-preview-box"></div>
+    </div>
+
+    <div class="toggle-row">
+      <span>开启磨砂透明</span>
+      <label class="toggle-switch">
+        <input type="checkbox" id="glassToggle">
+        <span class="toggle-slider"></span>
+      </label>
+    </div>
+    <p style="font-size: 9px; color: var(--theme-text-dim); margin-top: -6px;">* 开启后会实时渲染底层画面，低端设备如遇卡顿请关闭。</p>
+    
+    <div class="setting-section" style="margin-top: 2px;">
+      <div class="setting-label-row"><span class="setting-label">高斯模糊</span><span class="val-display" id="valBlur">18px</span></div>
+      <input type="range" id="glassBlur" min="0" max="30" value="18">
+    </div>
+    <div class="setting-section">
+      <div class="setting-label-row"><span class="setting-label">透明度</span><span class="val-display" id="valAlpha">15%</span></div>
+      <input type="range" id="glassAlpha" min="5" max="100" value="15">
+    </div>
+    <div class="setting-section">
+      <div class="setting-label-row"><span class="setting-label">边缘高光</span><span class="val-display" id="valHighlight">4px</span></div>
+      <input type="range" id="glassHighlight" min="0" max="10" value="4">
     </div>
   </div>
-  <div class="setting-section">
-    <div class="setting-label">画板底色</div>
-    <div class="board-colors">
-      <div class="board-color active" style="background:#1E1E1E; border:1px solid #444;" data-color="#1E1E1E"></div>
-      <div class="board-color" style="background:#FFFFFF; border:1px solid #ccc;" data-color="#FFFFFF"></div>
-      <div class="board-color" style="background:#CCE8CF; border:1px solid #ccc;" data-color="#CCE8CF"></div>
-      <div class="board-color" style="background:#F5F5DC; border:1px solid #ccc;" data-color="#F5F5DC"></div>
+</div>
+
+<div id="themeMenu" class="menu-panel">
+  <div class="sub-menu-header" id="btnBackFromTheme"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"></polyline></svg>主题设置</div>
+  <div class="sub-menu-content">
+    <div class="setting-section">
+      <div class="setting-label">界面主题</div>
+      <div class="theme-btns">
+        <button class="theme-btn active" data-theme="dark">深色</button>
+        <button class="theme-btn" data-theme="light">浅色</button>
+      </div>
+    </div>
+    <div class="setting-section">
+      <div class="setting-label">画板底色</div>
+      <div class="board-colors">
+        <div class="board-color active" style="background:#1E1E1E; border:1px solid #444;" data-color="#1E1E1E"></div>
+        <div class="board-color" style="background:#FFFFFF; border:1px solid #ccc;" data-color="#FFFFFF"></div>
+        <div class="board-color" style="background:#CCE8CF; border:1px solid #ccc;" data-color="#CCE8CF"></div>
+        <div class="board-color" style="background:#F5F5DC; border:1px solid #ccc;" data-color="#F5F5DC"></div>
+      </div>
+    </div>
+    <div class="setting-section">
+      <div class="setting-label">亮度调节（护眼遮罩）</div>
+      <div class="brightness-row"><input type="range" id="brightnessSlider" min="0" max="60" value="0"></div>
     </div>
   </div>
-  <div class="setting-section">
-    <div class="setting-label">亮度调节（护眼遮罩）</div>
-    <div class="brightness-row">
-      <input type="range" id="brightnessSlider" min="0" max="60" value="0">
+</div>
+
+<div id="aboutMenu" class="menu-panel">
+  <div class="sub-menu-header" id="btnBackFromAbout"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"></polyline></svg>关于白板</div>
+  <div class="sub-menu-content">
+    <div class="about-content">
+      <strong>西欧白板 1.0.1</strong>
+      <p>一款基于纯前端技术开发的教学白板。</p>
+      <p>制作者：WanJiaqi313</p>
+      <p>GitHub 仓库：<br><a href="https://github.com/wanjiaqi313-eng/xiouBoard" target="_blank">https://github.com/wanjiaqi313-eng/xiouBoard</a></p>
+      <p>支持画笔、橡皮、选择、撤回，包含尺规工具、界面四向布局及磨砂透明效果。</p>
     </div>
   </div>
+</div>
+
+<div id="toolsMenu">
+  <div class="tool-grid-item" data-tool-type="ruler">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="8" width="20" height="8" rx="1"></rect><line x1="6" y1="8" x2="6" y2="12"></line><line x1="10" y1="8" x2="10" y2="10"></line><line x1="14" y1="8" x2="14" y2="12"></line><line x1="18" y1="8" x2="18" y2="10"></line></svg>
+    <span>直尺</span>
+  </div>
+  <div class="tool-grid-item" data-tool-type="tri45">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12,2 2,22 22,22"></polygon><line x1="12" y1="2" x2="12" y2="22"></line></svg>
+    <span>45°板</span>
+  </div>
+  <div class="tool-grid-item" data-tool-type="tri30">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="2,22 22,22 2,10"></polygon></svg>
+    <span>30°板</span>
+  </div>
+  <div class="tool-grid-item" data-tool-type="protractor">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 18 A 10 10 0 0 1 22 18 Z"></path><line x1="2" y1="18" x2="22" y2="18"></line></svg>
+    <span>量角器</span>
+  </div>
+  <div class="tool-grid-item" data-tool-type="compass">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 4 L6 20"></path><path d="M12 4 L18 20"></path><circle cx="12" cy="4" r="2"></circle><path d="M6 20 A 6 6 0 0 0 18 20"></path></svg>
+    <span>圆规</span>
+  </div>
+</div>
+
+<div id="toolControl">
+  <div class="rc-row" id="rcRotRow"><span>整体旋转</span><input type="range" id="rcRot" min="-180" max="180" value="0"></div>
+  <div class="rc-row" id="rcAngleRow" style="display:none;"><span>锐角调节</span><input type="range" id="rcAngle" min="10" max="80" value="45"></div>
+  <div class="rc-row"><span>大小缩放</span><input type="range" id="rcScale" min="50" max="200" value="100"></div>
+  <div class="rc-row"><span>透明度</span><input type="range" id="rcAlpha" min="10" max="100" value="80"></div>
+  <div class="rc-close" id="rcDelete">删除该工具</div>
 </div>
 
 <div id="pageControls">
   <button class="page-btn" id="btnPrevPage" disabled>◀</button>
   <span id="pageIndicator">1 / 1</span>
   <button class="page-btn" id="btnNextPage" disabled>▶</button>
-  <button class="page-btn" id="btnAddPage" style="font-size:20px; font-weight:bold; margin-left:4px;">+</button>
+  <button class="page-btn" id="btnAddPage" style="font-size:16px; font-weight:bold; margin-left:2px;">+</button>
 </div>
 
 <div id="bottomToolbar">
@@ -272,6 +532,16 @@
   <button class="tool-btn" id="btnEraser" data-tool="eraser">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 21H8L3 16c-1-1-1-2.5 0-3.5l9.5-9.5c1-1 2.5-1 3.5 0l5 5c1 1 1 2.5 0 3.5L12 21"></path><path d="M15 10 9 4"></path></svg>
     <span class="label">橡皮</span>
+  </button>
+  <button class="tool-btn" id="btnTools">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect>
+    </svg>
+    <span class="label">工具</span>
+  </button>
+  <button class="tool-btn" id="btnUndo" disabled>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7v6h6"></path><path d="M21 17a9 9 0 0 0-9-9 9 9 0 0 0-6 2.3L3 13"></path></svg>
+    <span class="label">撤回</span>
   </button>
 </div>
 
@@ -295,13 +565,15 @@
       <input type="range" id="sizeSlider" min="1" max="30" value="4" step="1">
     </div>
   </div>
-  <div class="panel-arrow"></div>
 </div>
 
 <div class="float-panel" id="eraserSettings">
   <div class="eraser-action" id="btnAreaClear">区域清除</div>
   <div class="eraser-action" id="btnDirectClear" style="color:#ff6b6b; border-color:#ff6b6b;">直接清除</div>
-  <div class="panel-arrow"></div>
+  <div class="eraser-slider-row" style="width:100%;display:flex;align-items:center;gap:8px;padding:4px 0;border-top:1px solid var(--theme-border);margin-top:4px;">
+    <span style="font-size:11px; color:var(--theme-text-dim);">粗细</span>
+    <input type="range" id="eraserSizeSlider" min="10" max="80" value="22" step="2">
+  </div>
 </div>
 
 <script>
@@ -342,12 +614,63 @@
     brightnessMask.style.opacity = (e.target.value / 100);
   });
 
+  // ==================== 自动更新检测逻辑 ====================
+  const CURRENT_VERSION = '1.0.1'; // 本地版本号
+  const REPO_OWNER = 'wanjiaqi313-eng';
+  const REPO_NAME = 'xiouBoard';
+  const RELEASE_URL = 'https://github.com/wanjiaqi313-eng/xiouBoard/releases/tag/%E5%AE%89%E5%8D%93%E7%AB%AF%E7%99%BD%E6%9D%BF';
+
+  // 语义化版本比较（支持提取 v1.0.0-Beta 中的 1.0.0）
+  function compareVersions(v1, v2) {
+    const clean1 = v1.replace(/[^0-9.]/g, '').split('.').map(Number);
+    const clean2 = v2.replace(/[^0-9.]/g, '').split('.').map(Number);
+    
+    const len = Math.max(clean1.length, clean2.length);
+    for (let i = 0; i < len; i++) {
+      const num1 = clean1[i] || 0;
+      const num2 = clean2[i] || 0;
+      if (num1 > num2) return 1;
+      if (num1 < num2) return -1;
+    }
+    return 0;
+  }
+
+  async function checkForUpdates() {
+    try {
+      const res = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/releases/latest`);
+      if (!res.ok) return;
+      const data = await res.json();
+      
+      const latestTag = data.tag_name; // 例如 v1.0.0-Beta
+      
+      // 只有当线上版本 > 本地版本时，才弹窗
+      if (compareVersions(latestTag, CURRENT_VERSION) > 0) {
+        document.getElementById('updateToast').classList.add('show');
+      }
+    } catch (err) {
+      console.log('更新检查失败:', err);
+    }
+  }
+
+  document.getElementById('btnLater').addEventListener('click', () => {
+    document.getElementById('updateToast').classList.remove('show');
+  });
+
+  document.getElementById('btnUpdateNow').addEventListener('click', () => {
+    window.open(RELEASE_URL, '_blank');
+    document.getElementById('updateToast').classList.remove('show');
+  });
+
+  // 启动延迟 2 秒检测，不阻塞主线程
+  setTimeout(checkForUpdates, 2000);
+
   // ==================== 全局状态 ====================
   const state = {
     tool: 'pen',
     color: '#FFFFFF', size: 4, 
     brushType: 'default',
-    pages: [{ strokes: [] }],
+    eraserSize: 22,
+    pages: [{ strokes: [], rulers: [] }],
     currentPageIndex: 0,
     maxPages: 300,
     activeStrokes: new Map(), 
@@ -360,8 +683,14 @@
     isDraggingSelection: false, dragStartPos: null,
     isAreaClearMode: false, areaClearStart: null, areaClearEnd: null,
     areaClearPointerId: null,
-    boardBg: '#1E1E1E'
+    boardBg: '#1E1E1E',
+    activeRuler: null, 
+    dragRulerMode: null, 
+    dragStartRulerState: null,
+    rulerClickStartPos: null
   };
+
+  let undoStack = [];
 
   const mainCanvas = document.getElementById('mainCanvas');
   const ctx = mainCanvas.getContext('2d', { willReadFrequently: true });
@@ -369,12 +698,67 @@
   const bgCtx = bgCanvas.getContext('2d', { willReadFrequently: true });
   
   const selectionMenu = document.getElementById('selectionMenu');
+  const btnUndo = document.getElementById('btnUndo');
   let dpr = window.devicePixelRatio || 1;
   let strokeIdCounter = 0;
+  let rulerIdCounter = 0;
   let prevWidth = 0, prevHeight = 0;
 
   function getStrokes() { return state.pages[state.currentPageIndex].strokes; }
+  function getRulers() { return state.pages[state.currentPageIndex].rulers || (state.pages[state.currentPageIndex].rulers = []); }
 
+  // ==================== 菜单动态定位 ====================
+  function positionPanel(panel, anchorBtn) {
+    panel.classList.add('show');
+    const panelW = panel.offsetWidth;
+    const panelH = panel.offsetHeight;
+    const rect = anchorBtn.getBoundingClientRect();
+    const screenW = window.innerWidth;
+    const screenH = window.innerHeight;
+    
+    let top, left;
+    
+    if (rect.left + panelW > screenW - 10) left = rect.right - panelW;
+    else left = rect.left;
+    
+    if (rect.bottom + panelH + 10 > screenH) top = rect.top - panelH - 10;
+    else top = rect.bottom + 10;
+    
+    left = Math.max(10, Math.min(left, screenW - panelW - 10));
+    top = Math.max(10, Math.min(top, screenH - panelH - 10));
+    
+    panel.style.left = `${left}px`;
+    panel.style.top = `${top}px`;
+    panel.style.bottom = 'auto';
+    panel.style.right = 'auto';
+  }
+
+  // ==================== 撤回功能 ====================
+  function saveState() {
+    const page = state.pages[state.currentPageIndex];
+    undoStack.push(JSON.stringify({ strokes: page.strokes, rulers: page.rulers || [] }));
+    if (undoStack.length > 50) undoStack.shift();
+    updateUndoBtn();
+  }
+
+  function undo() {
+    if (undoStack.length <= 1) return;
+    undoStack.pop();
+    const prevState = JSON.parse(undoStack[undoStack.length - 1]);
+    state.pages[state.currentPageIndex].strokes = prevState.strokes;
+    state.pages[state.currentPageIndex].rulers = prevState.rulers;
+    state.selectedStrokeIds.clear(); 
+    selectionMenu.classList.remove('show');
+    state.activeRuler = null;
+    document.getElementById('toolControl').classList.remove('show');
+    renderAll();
+    updateUndoBtn();
+  }
+
+  function updateUndoBtn() { btnUndo.disabled = (undoStack.length <= 1); }
+  function initHistory() { undoStack = []; saveState(); }
+
+  // ==================== 画布与渲染 ====================
   function resizeCanvas() {
     const rect = mainCanvas.parentElement.getBoundingClientRect();
     const newW = rect.width, newH = rect.height;
@@ -400,7 +784,6 @@
     renderAll();
   }
 
-  // ==================== 性能渲染核心 ====================
   function renderAll() {
     const w = mainCanvas.width / dpr, h = mainCanvas.height / dpr;
     bgCtx.clearRect(0, 0, w, h);
@@ -412,6 +795,8 @@
     ctx.clearRect(0, 0, w, h);
     ctx.drawImage(bgCanvas, 0, 0, w, h);
     
+    getRulers().forEach(r => drawRuler(ctx, r));
+    
     if (state.tool === 'select') drawSelectionUI(w, h);
     if (state.isBoxSelecting && state.boxSelectStart && state.boxSelectEnd) drawDashedBox(ctx, state.boxSelectStart, state.boxSelectEnd, '#4A9EFF');
     if (state.isAreaClearMode && state.areaClearStart && state.areaClearEnd) drawDashedBox(ctx, state.areaClearStart, state.areaClearEnd, '#4A9EFF');
@@ -421,9 +806,100 @@
     const w = mainCanvas.width / dpr, h = mainCanvas.height / dpr;
     ctx.clearRect(0, 0, w, h);
     ctx.drawImage(bgCanvas, 0, 0, w, h);
+    getRulers().forEach(r => drawRuler(ctx, r)); 
     state.activeStrokes.forEach(s => drawStroke(ctx, s));
   }
 
+  // ==================== 尺规绘制逻辑 ====================
+  function drawRuler(context, r) {
+    context.save();
+    context.translate(r.x, r.y);
+    context.rotate(r.angle * Math.PI / 180);
+    context.scale(r.scale, r.scale);
+    
+    if (state.activeRuler && state.activeRuler.id === r.id) {
+      context.shadowColor = '#0078D7';
+      context.shadowBlur = 15;
+    }
+
+    context.strokeStyle = 'rgba(255,255,255,0.8)';
+    context.lineWidth = 1.5;
+    context.fillStyle = 'rgba(255,255,255,0.1)';
+    context.font = '10px sans-serif';
+    context.textAlign = 'center';
+    context.textBaseline = 'top';
+
+    if (state.boardBg !== '#1E1E1E') {
+      context.strokeStyle = 'rgba(0,0,0,0.8)';
+      context.fillStyle = 'rgba(0,0,0,0.05)';
+      context.fillStyle = 'rgba(0,0,0,0.6)'; 
+    } else {
+      context.fillStyle = 'rgba(255,255,255,0.6)';
+    }
+    
+    if (state.activeRuler && state.activeRuler.id === r.id) {
+      context.strokeStyle = '#0078D7';
+      context.fillStyle = '#0078D7';
+    }
+
+    context.globalAlpha = r.opacity;
+
+    if (r.type === 'ruler') {
+      const w = 300, h = 60;
+      context.beginPath(); context.rect(0, -h/2, w, h);
+      context.fill(); context.stroke();
+      
+      for (let i = 10; i < w; i += 10) {
+        const isMajor = i % 50 === 0;
+        context.beginPath(); context.moveTo(i, -h/2);
+        context.lineTo(i, -h/2 + (isMajor ? 20 : 10));
+        context.stroke();
+        if (isMajor) context.fillText((i/10).toString(), i, -h/2 + 22);
+      }
+    } else if (r.type === 'tri45' || r.type === 'tri30') {
+      const w = 250;
+      const angleB = (r.angleB || (r.type === 'tri45' ? 45 : 30));
+      const h = w * Math.tan(angleB * Math.PI/180);
+      
+      context.beginPath();
+      context.moveTo(0, 0);
+      context.lineTo(w, 0);
+      context.lineTo(0, -h);
+      context.closePath();
+      context.fill(); context.stroke();
+      
+      for(let i=20; i<w; i+=20) {
+         context.beginPath(); context.moveTo(i, 0); context.lineTo(i, i%100===0?15:8); context.stroke();
+         if(i%100===0) context.fillText((i/10).toString(), i, 18);
+      }
+    } else if (r.type === 'protractor') {
+      const radius = 140;
+      context.beginPath();
+      context.arc(0, 0, radius, Math.PI, 0);
+      context.lineTo(radius, 0);
+      context.lineTo(-radius, 0);
+      context.closePath();
+      context.fill(); context.stroke();
+      for(let a = 0; a <= 180; a+=10) {
+        const rad = a * Math.PI / 180;
+        const isMajor = a % 30 === 0;
+        context.beginPath(); context.moveTo(-Math.cos(rad)*radius, -Math.sin(rad)*radius);
+        context.lineTo(-Math.cos(rad)*(radius - (isMajor?15:8)), -Math.sin(rad)*(radius - (isMajor?15:8)));
+        context.stroke();
+        if (isMajor) context.fillText(a.toString(), -Math.cos(rad)*(radius-25), -Math.sin(rad)*(radius-25)-5);
+      }
+    } else if (r.type === 'compass') {
+      context.beginPath(); context.moveTo(0, 0); context.lineTo(-30, 120);
+      context.moveTo(0, 0); context.lineTo(30, 120);
+      context.stroke();
+      context.beginPath(); context.arc(0, 0, 8, 0, Math.PI*2); context.fill(); context.stroke();
+      context.beginPath(); context.arc(0, 120, 100, 0, Math.PI*2); context.setLineDash([5,5]); context.stroke();
+      context.setLineDash([]);
+    }
+    context.restore();
+  }
+
+  // ==================== 画笔渲染 ====================
   function drawStroke(context, stroke) {
     const pts = stroke.points;
     if (!pts || pts.length === 0) return;
@@ -483,7 +959,6 @@
       return;
     }
 
-    // 默认平滑笔锋
     const rawSpeeds = [];
     for (let i = 1; i < pts.length; i++) {
       rawSpeeds.push(Math.hypot(pts[i].x - pts[i-1].x, pts[i].y - pts[i-1].y));
@@ -546,7 +1021,67 @@
     context.restore();
   }
 
-  // ... UI 绘制相关逻辑 ...
+  // ==================== 吸附逻辑 ====================
+  function getSnapPoint(x, y) {
+    const snapDist = 25;
+    let closestPoint = null;
+    let minDist = snapDist;
+
+    getRulers().forEach(r => {
+      const dx = x - r.x;
+      const dy = y - r.y;
+      const rad = -r.angle * Math.PI / 180;
+      const localX = (dx * Math.cos(rad) - dy * Math.sin(rad)) / r.scale;
+      const localY = (dx * Math.sin(rad) + dy * Math.cos(rad)) / r.scale;
+
+      let snappedLocal = null;
+
+      if (r.type === 'ruler') {
+        const w = 300, h = 60;
+        if (localX >= 0 && localX <= w && Math.abs(localY + h/2) < snapDist / r.scale) snappedLocal = { x: localX, y: -h/2 };
+        else if (localX >= 0 && localX <= w && Math.abs(localY - h/2) < snapDist / r.scale) snappedLocal = { x: localX, y: h/2 };
+      } else if (r.type === 'tri45' || r.type === 'tri30') {
+        const w = 250;
+        const angleB = (r.angleB || (r.type === 'tri45' ? 45 : 30));
+        const h = w * Math.tan(angleB * Math.PI/180);
+        
+        if (localX >= 0 && localX <= w && Math.abs(localY) < snapDist / r.scale) snappedLocal = { x: localX, y: 0 };
+        if (localY <= 0 && localY >= -h && Math.abs(localX) < snapDist / r.scale) snappedLocal = { x: 0, y: localY };
+        
+        const mag2 = w*w + h*h;
+        const t = ((localX)*w + (localY + h)*h) / mag2;
+        if (t >= 0 && t <= 1) {
+          const qx = t * w;
+          const qy = -h + t * h;
+          if (Math.hypot(localX - qx, localY - qy) < snapDist / r.scale) {
+            snappedLocal = { x: qx, y: qy };
+          }
+        }
+      } else if (r.type === 'protractor') {
+        if (localX >= -140 && localX <= 140 && Math.abs(localY) < snapDist / r.scale) snappedLocal = { x: localX, y: 0 };
+      } else if (r.type === 'compass') {
+        const distToCenter = Math.hypot(localX, localY - 120);
+        if (Math.abs(distToCenter - 100) < snapDist / r.scale) {
+          const angle = Math.atan2(localY - 120, localX);
+          snappedLocal = { x: Math.cos(angle) * 100, y: 120 + Math.sin(angle) * 100 };
+        }
+      }
+
+      if (snappedLocal) {
+        const gx = r.x + (snappedLocal.x * Math.cos(r.angle * Math.PI / 180) - snappedLocal.y * Math.sin(r.angle * Math.PI / 180)) * r.scale;
+        const gy = r.y + (snappedLocal.x * Math.sin(r.angle * Math.PI / 180) + snappedLocal.y * Math.cos(r.angle * Math.PI / 180)) * r.scale;
+        const dist = Math.hypot(gx - x, gy - y);
+        if (dist < minDist) {
+          minDist = dist;
+          closestPoint = { x: gx, y: gy };
+        }
+      }
+    });
+
+    return closestPoint;
+  }
+
+  // ==================== 选择与编辑 ====================
   function drawSelectionUI(w, h) {
     if (state.selectedStrokeIds.size === 0) { selectionMenu.classList.remove('show'); return; }
     let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
@@ -571,10 +1106,10 @@
   // ==================== 橡皮擦逻辑 ====================
   function eraseLocal(cx, cy, strokes) {
     const rect = mainCanvas.getBoundingClientRect(); const ex = cx - rect.left, ey = cy - rect.top;
-    const eraserRadius = 22; let globalChanged = false;
+    const eraserRadius = state.eraserSize / 2;
+    let globalChanged = false;
     for (let i = strokes.length - 1; i >= 0; i--) {
       const stroke = strokes[i]; const newSegments = []; let currentSegment = []; let strokeChanged = false;
-      
       for (const p of stroke.points) {
         const dist = Math.hypot(p.x - ex, p.y - ey);
         if (dist > eraserRadius) currentSegment.push(p);
@@ -597,7 +1132,7 @@
 
     if (state.lastErasePos) {
       const dist = Math.hypot(pos.x - state.lastErasePos.x, pos.y - state.lastErasePos.y);
-      const steps = Math.ceil(dist / 5);
+      const steps = Math.ceil(dist / (state.eraserSize / 3));
       for (let i = 1; i <= steps; i++) {
         const t = i / steps;
         const ix = state.lastErasePos.x + (pos.x - state.lastErasePos.x) * t;
@@ -632,11 +1167,68 @@
 
   const eraserCursor = document.getElementById('eraserCursor');
   
+  // ==================== 交互逻辑 ====================
   mainCanvas.addEventListener('pointerdown', (e) => {
     if (e.button !== undefined && e.button !== 0) return;
+    if (e.pointerType === 'touch') e.preventDefault();
 
     const rect = mainCanvas.getBoundingClientRect(); const pos = getPos(e, rect);
+
     if (state.tool === 'select') {
+      const clickedRuler = getRulers().slice().reverse().find(r => {
+        const dx = pos.x - r.x, dy = pos.y - r.y;
+        const rad = -r.angle * Math.PI / 180;
+        const lx = (dx * Math.cos(rad) - dy * Math.sin(rad)) / r.scale;
+        const ly = (dx * Math.sin(rad) + dy * Math.cos(rad)) / r.scale;
+        return lx >= -20 && lx <= 320 && ly >= -160 && ly <= 160; 
+      });
+
+      if (clickedRuler) {
+        state.activeRuler = clickedRuler;
+        state.rulerClickStartPos = pos;
+        state.dragStartRulerState = { x: clickedRuler.x, y: clickedRuler.y };
+
+        let isVertex = false;
+        if (clickedRuler.type === 'tri45' || clickedRuler.type === 'tri30') {
+          const dx = pos.x - clickedRuler.x;
+          const dy = pos.y - clickedRuler.y;
+          const rad = -clickedRuler.angle * Math.PI / 180;
+          const lx = (dx * Math.cos(rad) - dy * Math.sin(rad)) / clickedRuler.scale;
+          const ly = (dx * Math.sin(rad) + dy * Math.cos(rad)) / clickedRuler.scale;
+          
+          const a = (clickedRuler.angleB || (clickedRuler.type === 'tri45' ? 45 : 30)) * Math.PI / 180;
+          const w = 250;
+          const h = w * Math.tan(a);
+          
+          const distBL = Math.hypot(lx - 0, ly - 0);
+          const distBR = Math.hypot(lx - w, ly - 0);
+          const distTL = Math.hypot(lx - 0, ly - (-h));
+          
+          if (distBL < 30 || distBR < 30 || distTL < 30) {
+            isVertex = true;
+          }
+        }
+
+        if (isVertex) {
+          state.dragRulerMode = null; 
+          document.getElementById('rcRotRow').style.display = 'none';
+          document.getElementById('rcAngleRow').style.display = 'flex';
+          document.getElementById('rcAngle').value = clickedRuler.angleB || (clickedRuler.type === 'tri45' ? 45 : 30);
+          positionPanel(document.getElementById('toolControl'), e.target);
+          renderAll();
+          return;
+        } else {
+          state.dragRulerMode = 'move';
+          state.dragStartPos = pos;
+          renderAll();
+          return;
+        }
+      } else {
+        state.activeRuler = null;
+        document.getElementById('toolControl').classList.remove('show');
+        renderAll();
+      }
+
       if (state.selectionPointerId !== null) return;
       if (state.selectedStrokeIds.size > 0 && state.selectionBBox) {
         const { minX, minY, maxX, maxY } = state.selectionBBox;
@@ -647,6 +1239,7 @@
       state.isBoxSelecting = true; state.boxSelectStart = pos; state.boxSelectEnd = pos; state.selectionPointerId = e.pointerId;
       state.selectedStrokeIds.clear(); selectionMenu.classList.remove('show'); mainCanvas.setPointerCapture(e.pointerId); renderAll(); return;
     }
+
     if (state.tool === 'eraser' && state.isAreaClearMode) {
       if (state.areaClearPointerId !== null) return;
       state.areaClearPointerId = e.pointerId; mainCanvas.setPointerCapture(e.pointerId); state.areaClearStart = pos; state.areaClearEnd = pos; renderAll(); return;
@@ -662,20 +1255,28 @@
     }
     if (state.tool === 'pen') {
       mainCanvas.setPointerCapture(e.pointerId);
-      const stroke = { color: state.color, size: state.size, points: [pos], id: ++strokeIdCounter, brushType: state.brushType };
+      const snapPos = getSnapPoint(pos.x, pos.y);
+      const finalPos = snapPos ? snapPos : pos;
+      
+      const stroke = { color: state.color, size: state.size, points: [finalPos], id: ++strokeIdCounter, brushType: state.brushType };
       state.activeStrokes.set(e.pointerId, stroke); renderCurrent();
     }
   });
 
   mainCanvas.addEventListener('pointermove', (e) => {
     const rect = mainCanvas.getBoundingClientRect(); const pos = getPos(e, rect);
+
+    if (state.tool === 'select' && state.activeRuler && state.dragRulerMode === 'move') {
+      state.activeRuler.x = state.dragStartRulerState.x + (pos.x - state.dragStartPos.x);
+      state.activeRuler.y = state.dragStartRulerState.y + (pos.y - state.dragStartPos.y);
+      renderAll(); return;
+    }
+
     if (state.tool === 'select' && state.isDraggingSelection && e.pointerId === state.selectionPointerId) {
       const dx = pos.x - state.dragStartPos.x, dy = pos.y - state.dragStartPos.y;
       state.selectedStrokeIds.forEach(id => {
         const stroke = getStrokes().find(s => s.id === id);
-        if (stroke) { 
-          stroke.points.forEach(p => { p.x += dx; p.y += dy; }); 
-        }
+        if (stroke) { stroke.points.forEach(p => { p.x += dx; p.y += dy; }); }
       });
       state.dragStartPos = pos; renderAll(); return;
     }
@@ -687,15 +1288,18 @@
     }
     if (state.tool === 'eraser' && state.isErasing && e.pointerId === state.eraserPointerId) {
       showEraserCursor(e.clientX, e.clientY);
-      performEraserInterpolate(e); 
-      return;
+      performEraserInterpolate(e); return;
     }
     if (state.tool === 'pen' && state.activeStrokes.has(e.pointerId)) {
       const stroke = state.activeStrokes.get(e.pointerId);
       const events = e.getCoalescedEvents ? e.getCoalescedEvents() : [e];
       let hasNewPoint = false;
       events.forEach(ev => {
-        const newPos = getPos(ev, rect);
+        let newPos = getPos(ev, rect);
+        
+        const snapPos = getSnapPoint(newPos.x, newPos.y);
+        if (snapPos) newPos = snapPos;
+
         const lastPos = stroke.points[stroke.points.length - 1];
         const dist = Math.hypot(newPos.x - lastPos.x, newPos.y - lastPos.y);
         if (dist > 1.5 || ev.pointerType === 'pen') {
@@ -708,7 +1312,28 @@
   });
 
   const endPointer = (e) => {
-    if (state.tool === 'select' && state.isDraggingSelection && e.pointerId === state.selectionPointerId) { state.isDraggingSelection = false; state.selectionPointerId = null; return; }
+    if (state.tool === 'select' && state.activeRuler && state.dragRulerMode === 'move') { 
+      state.dragRulerMode = null; 
+      
+      const rect = mainCanvas.getBoundingClientRect();
+      const pos = getPos(e, rect);
+      const dist = Math.hypot(pos.x - state.rulerClickStartPos.x, pos.y - state.rulerClickStartPos.y);
+      
+      if (dist < 5) {
+        document.getElementById('rcRotRow').style.display = 'flex';
+        document.getElementById('rcAngleRow').style.display = 'none';
+        positionPanel(document.getElementById('toolControl'), document.getElementById('btnTools'));
+        document.getElementById('rcRot').value = state.activeRuler.angle;
+        document.getElementById('rcScale').value = state.activeRuler.scale * 100;
+        document.getElementById('rcAlpha').value = state.activeRuler.opacity * 100;
+      } else {
+        saveState();
+      }
+      return; 
+    }
+    if (state.tool === 'select' && state.isDraggingSelection && e.pointerId === state.selectionPointerId) { 
+      state.isDraggingSelection = false; state.selectionPointerId = null; saveState(); return; 
+    }
     if (state.tool === 'select' && state.isBoxSelecting && e.pointerId === state.selectionPointerId) {
       state.isBoxSelecting = false; state.selectionPointerId = null;
       const start = state.boxSelectStart, end = state.boxSelectEnd;
@@ -728,17 +1353,18 @@
       state.areaClearPointerId = null;
       const start = state.areaClearStart, end = state.areaClearEnd;
       if (start && end && (Math.abs(end.x - start.x) > 5 || Math.abs(end.y - start.y) > 5)) {
-        if (eraseByRect(start.x, start.y, end.x, end.y)) renderAll();
+        if (eraseByRect(start.x, start.y, end.x, end.y)) { renderAll(); saveState(); }
       }
       state.areaClearStart = null; state.areaClearEnd = null; state.isAreaClearMode = false; renderAll(); return;
     }
-    if (state.tool === 'eraser' && state.isErasing && e.pointerId === state.eraserPointerId) { state.isErasing = false; state.eraserPointerId = null; state.lastErasePos = null; eraserCursor.style.display = 'none'; return; }
+    if (state.tool === 'eraser' && state.isErasing && e.pointerId === state.eraserPointerId) { 
+      state.isErasing = false; state.eraserPointerId = null; state.lastErasePos = null; 
+      eraserCursor.style.display = 'none'; saveState(); return; 
+    }
     if (state.tool === 'pen' && state.activeStrokes.has(e.pointerId)) {
       const stroke = state.activeStrokes.get(e.pointerId);
-      
-      if (stroke.points.length > 0) getStrokes().push(stroke);
-      state.activeStrokes.delete(e.pointerId); 
-      renderAll(); 
+      if (stroke.points.length > 0) { getStrokes().push(stroke); saveState(); }
+      state.activeStrokes.delete(e.pointerId); renderAll(); 
     }
   };
 
@@ -746,31 +1372,35 @@
   mainCanvas.addEventListener('pointercancel', endPointer);
   mainCanvas.addEventListener('pointerleave', (e) => { if (e.pointerType === 'mouse') endPointer(e); });
   
-  function showEraserCursor(cx, cy) { const containerRect = document.getElementById('canvasContainer').getBoundingClientRect(); eraserCursor.style.display = 'block'; eraserCursor.style.left = (cx - containerRect.left) + 'px'; eraserCursor.style.top = (cy - containerRect.top) + 'px'; }
+  function showEraserCursor(cx, cy) { 
+    const containerRect = document.getElementById('canvasContainer').getBoundingClientRect(); 
+    eraserCursor.style.display = 'block'; 
+    eraserCursor.style.width = state.eraserSize + 'px';
+    eraserCursor.style.height = state.eraserSize + 'px';
+    eraserCursor.style.left = (cx - containerRect.left) + 'px'; 
+    eraserCursor.style.top = (cy - containerRect.top) + 'px'; 
+  }
 
-  // ==================== 背景色与画笔颜色自动适配 ====================
+  // ==================== 菜单与面板 ====================
   function adaptColorToBg() {
     const isDarkBg = (state.boardBg === '#1E1E1E');
-    if (isDarkBg) {
-      if (state.color === '#000000') setColor('#FFFFFF');
-    } else {
-      if (state.color === '#FFFFFF') setColor('#000000');
-    }
+    if (isDarkBg) { if (state.color === '#000000') setColor('#FFFFFF'); } 
+    else { if (state.color === '#FFFFFF') setColor('#000000'); }
   }
   function setColor(color) {
     state.color = color;
     document.querySelectorAll('.color-cell').forEach(el => {
-      if (el.dataset.color === color) el.classList.add('active');
-      else el.classList.remove('active');
+      if (el.dataset.color === color) el.classList.add('active'); else el.classList.remove('active');
     });
   }
 
-  // ==================== 工具栏与UI逻辑 ====================
+  document.getElementById('btnUndo').addEventListener('pointerdown', (e) => { e.preventDefault(); e.stopPropagation(); undo(); });
+
   document.getElementById('smDelete').addEventListener('pointerdown', (e) => {
     e.preventDefault(); e.stopPropagation();
     if (state.selectedStrokeIds.size === 0) return;
     state.pages[state.currentPageIndex].strokes = getStrokes().filter(s => !state.selectedStrokeIds.has(s.id));
-    state.selectedStrokeIds.clear(); selectionMenu.classList.remove('show'); renderAll();
+    state.selectedStrokeIds.clear(); selectionMenu.classList.remove('show'); renderAll(); saveState();
   });
   document.getElementById('smClone').addEventListener('pointerdown', (e) => {
     e.preventDefault(); e.stopPropagation();
@@ -784,7 +1414,7 @@
         getStrokes().push(newStroke); newIds.add(newStroke.id);
       }
     });
-    state.selectedStrokeIds = newIds; renderAll();
+    state.selectedStrokeIds = newIds; renderAll(); saveState();
   });
   const smColors = document.getElementById('smColors');
   ['#000000', '#FF0000', '#2196F3', '#4CAF50', '#FFEB3B', '#FFFFFF'].forEach(c => {
@@ -793,14 +1423,29 @@
       e.preventDefault(); e.stopPropagation();
       if (state.selectedStrokeIds.size === 0) return;
       state.selectedStrokeIds.forEach(id => { const stroke = getStrokes().find(s => s.id === id); if (stroke) stroke.color = c; });
-      renderAll();
+      renderAll(); saveState();
     });
     smColors.appendChild(div);
   });
 
   const btnSelect = document.getElementById('btnSelect'), btnPen = document.getElementById('btnPen'), btnEraser = document.getElementById('btnEraser');
-  const penSettings = document.getElementById('penSettings'), eraserSettings = document.getElementById('eraserSettings'), settingsPanel = document.getElementById('settingsPanel');
-  function closeAllPanels() { penSettings.classList.remove('show'); eraserSettings.classList.remove('show'); settingsPanel.classList.remove('show'); }
+  const penSettings = document.getElementById('penSettings'), eraserSettings = document.getElementById('eraserSettings');
+  const moreMenu = document.getElementById('moreMenu'), themeMenu = document.getElementById('themeMenu'), aboutMenu = document.getElementById('aboutMenu');
+  const toolsMenu = document.getElementById('toolsMenu'), toolControl = document.getElementById('toolControl');
+  const layoutMenu = document.getElementById('layoutMenu'), glassMenu = document.getElementById('glassMenu');
+
+  function closeAllPanels() { 
+    penSettings.classList.remove('show'); 
+    eraserSettings.classList.remove('show'); 
+    moreMenu.classList.remove('show');
+    themeMenu.classList.remove('show');
+    aboutMenu.classList.remove('show');
+    toolsMenu.classList.remove('show');
+    toolControl.classList.remove('show');
+    layoutMenu.classList.remove('show');
+    glassMenu.classList.remove('show');
+  }
+
   function setTool(tool) {
     state.tool = tool; state.activeStrokes.clear(); state.isErasing = false; state.isAreaClearMode = false;
     state.selectedStrokeIds.clear(); state.boxSelectStart = null; state.boxSelectEnd = null;
@@ -813,22 +1458,162 @@
   btnPen.addEventListener('pointerdown', (e) => {
     e.preventDefault(); e.stopPropagation();
     if (state.tool !== 'pen') { setTool('pen'); closeAllPanels(); }
-    else { const isShowing = penSettings.classList.contains('show'); closeAllPanels(); if (!isShowing) penSettings.classList.add('show'); }
+    else { const isShowing = penSettings.classList.contains('show'); closeAllPanels(); if (!isShowing) positionPanel(penSettings, btnPen); }
   });
 
   btnEraser.addEventListener('pointerdown', (e) => {
     e.preventDefault(); e.stopPropagation();
     if (state.tool !== 'eraser') { setTool('eraser'); closeAllPanels(); }
-    else { const isShowing = eraserSettings.classList.contains('show'); closeAllPanels(); if (!isShowing) eraserSettings.classList.add('show'); }
+    else { const isShowing = eraserSettings.classList.contains('show'); closeAllPanels(); if (!isShowing) positionPanel(eraserSettings, btnEraser); }
   });
 
-  document.getElementById('btnSettings').addEventListener('pointerdown', (e) => {
+  const btnTools = document.getElementById('btnTools');
+  btnTools.addEventListener('pointerdown', (e) => {
     e.preventDefault(); e.stopPropagation();
-    const isShowing = settingsPanel.classList.contains('show');
-    closeAllPanels(); if (!isShowing) settingsPanel.classList.add('show');
+    const isShowing = toolsMenu.classList.contains('show');
+    closeAllPanels();
+    if (!isShowing) positionPanel(toolsMenu, btnTools);
   });
+
+  document.querySelectorAll('.tool-grid-item').forEach(item => {
+    item.addEventListener('pointerdown', (e) => {
+      e.preventDefault(); e.stopPropagation();
+      toolsMenu.classList.remove('show');
+      
+      const type = item.dataset.toolType;
+      const w = mainCanvas.width / dpr, h = mainCanvas.height / dpr;
+      const newRuler = {
+        id: ++rulerIdCounter,
+        type: type,
+        x: w / 2,
+        y: h / 2,
+        angle: 0,
+        scale: 1.2,
+        opacity: 0.8,
+        angleB: type === 'tri45' ? 45 : (type === 'tri30' ? 30 : null)
+      };
+      getRulers().push(newRuler);
+      saveState();
+      renderAll();
+    });
+  });
+
+  document.getElementById('btnMenu').addEventListener('pointerdown', (e) => {
+    e.preventDefault(); e.stopPropagation();
+    const isShowing = moreMenu.classList.contains('show');
+    closeAllPanels(); 
+    if (!isShowing) positionPanel(moreMenu, e.currentTarget);
+  });
+
+  document.getElementById('btnGoLayout').addEventListener('pointerdown', (e) => {
+    e.preventDefault(); e.stopPropagation();
+    moreMenu.classList.remove('show'); positionPanel(layoutMenu, document.getElementById('btnMenu'));
+  });
+  document.getElementById('btnGoGlass').addEventListener('pointerdown', (e) => {
+    e.preventDefault(); e.stopPropagation();
+    moreMenu.classList.remove('show'); positionPanel(glassMenu, document.getElementById('btnMenu'));
+  });
+  document.getElementById('btnGoTheme').addEventListener('pointerdown', (e) => {
+    e.preventDefault(); e.stopPropagation();
+    moreMenu.classList.remove('show'); positionPanel(themeMenu, document.getElementById('btnMenu'));
+  });
+  document.getElementById('btnGoAbout').addEventListener('pointerdown', (e) => {
+    e.preventDefault(); e.stopPropagation();
+    moreMenu.classList.remove('show'); positionPanel(aboutMenu, document.getElementById('btnMenu'));
+  });
+  document.getElementById('btnBackFromLayout').addEventListener('pointerdown', (e) => {
+    e.preventDefault(); e.stopPropagation();
+    layoutMenu.classList.remove('show'); positionPanel(moreMenu, document.getElementById('btnMenu'));
+  });
+  document.getElementById('btnBackFromGlass').addEventListener('pointerdown', (e) => {
+    e.preventDefault(); e.stopPropagation();
+    glassMenu.classList.remove('show'); positionPanel(moreMenu, document.getElementById('btnMenu'));
+  });
+  document.getElementById('btnBackFromTheme').addEventListener('pointerdown', (e) => {
+    e.preventDefault(); e.stopPropagation();
+    themeMenu.classList.remove('show'); positionPanel(moreMenu, document.getElementById('btnMenu'));
+  });
+  document.getElementById('btnBackFromAbout').addEventListener('pointerdown', (e) => {
+    e.preventDefault(); e.stopPropagation();
+    aboutMenu.classList.remove('show'); positionPanel(moreMenu, document.getElementById('btnMenu'));
+  });
+
   document.addEventListener('pointerdown', (e) => {
-    if (!e.target.closest('.float-panel') && !e.target.closest('.tool-btn') && !e.target.closest('#selectionMenu') && !e.target.closest('#btnSettings') && !e.target.closest('#settingsPanel')) closeAllPanels();
+    if (!e.target.closest('.float-panel') && !e.target.closest('.tool-btn') && !e.target.closest('#selectionMenu') && !e.target.closest('#btnMenu') && !e.target.closest('.menu-panel') && !e.target.closest('#toolsMenu') && !e.target.closest('#toolControl') && !e.target.closest('#updateToast')) {
+      closeAllPanels();
+    }
+  });
+
+  // 布局切换
+  document.querySelectorAll('.layout-item').forEach(item => {
+    item.addEventListener('pointerdown', (e) => {
+      e.preventDefault();
+      const layout = item.dataset.layout;
+      document.body.className = document.body.className.replace(/layout-\w+/g, '');
+      document.body.classList.add('layout-' + layout);
+    });
+  });
+
+  // 磨砂透明控制
+  const glassToggle = document.getElementById('glassToggle');
+  const glassBlur = document.getElementById('glassBlur');
+  const glassAlpha = document.getElementById('glassAlpha');
+  const glassHighlight = document.getElementById('glassHighlight');
+  
+  // 数值显示
+  const valBlur = document.getElementById('valBlur');
+  const valAlpha = document.getElementById('valAlpha');
+  const valHighlight = document.getElementById('valHighlight');
+
+  function updateGlassVars() {
+    document.documentElement.style.setProperty('--glass-blur', glassBlur.value + 'px');
+    document.documentElement.style.setProperty('--glass-alpha', glassAlpha.value / 100);
+    document.documentElement.style.setProperty('--glass-highlight', glassHighlight.value + 'px');
+    
+    valBlur.textContent = glassBlur.value + 'px';
+    valAlpha.textContent = glassAlpha.value + '%';
+    valHighlight.textContent = glassHighlight.value + 'px';
+  }
+
+  glassToggle.addEventListener('change', (e) => {
+    if (e.target.checked) document.body.classList.add('glass-active');
+    else document.body.classList.remove('glass-active');
+  });
+  glassBlur.addEventListener('input', updateGlassVars);
+  glassAlpha.addEventListener('input', updateGlassVars);
+  glassHighlight.addEventListener('input', updateGlassVars);
+
+  updateGlassVars(); // 初始显示
+
+  const rcRot = document.getElementById('rcRot'), rcScale = document.getElementById('rcScale'), rcAlpha = document.getElementById('rcAlpha'), rcAngle = document.getElementById('rcAngle');
+  
+  function updateRulerProp() {
+    if (!state.activeRuler) return;
+    state.activeRuler.angle = parseInt(rcRot.value);
+    state.activeRuler.scale = parseInt(rcScale.value) / 100;
+    state.activeRuler.opacity = parseInt(rcAlpha.value) / 100;
+    renderAll();
+  }
+  rcRot.addEventListener('input', updateRulerProp);
+  rcScale.addEventListener('input', updateRulerProp);
+  rcAlpha.addEventListener('input', updateRulerProp);
+  
+  rcAngle.addEventListener('input', (e) => {
+    if (state.activeRuler) {
+      state.activeRuler.angleB = parseInt(e.target.value);
+      renderAll();
+    }
+  });
+
+  document.getElementById('rcDelete').addEventListener('pointerdown', (e) => {
+    e.preventDefault();
+    if (!state.activeRuler) return;
+    const idx = getRulers().findIndex(r => r.id === state.activeRuler.id);
+    if (idx > -1) getRulers().splice(idx, 1);
+    state.activeRuler = null;
+    document.getElementById('toolControl').classList.remove('show');
+    saveState();
+    renderAll();
   });
 
   document.querySelectorAll('.theme-btn').forEach(btn => {
@@ -848,30 +1633,42 @@
 
   const pageIndicator = document.getElementById('pageIndicator'), btnPrevPage = document.getElementById('btnPrevPage'), btnNextPage = document.getElementById('btnNextPage'), btnAddPage = document.getElementById('btnAddPage');
   function updatePageUI() { pageIndicator.textContent = `${state.currentPageIndex + 1} / ${state.pages.length}`; btnPrevPage.disabled = state.currentPageIndex === 0; btnNextPage.disabled = state.currentPageIndex === state.pages.length - 1; btnAddPage.disabled = state.pages.length >= state.maxPages; }
-  function switchPage(index) { if (index < 0 || index >= state.pages.length) return; state.currentPageIndex = index; state.selectedStrokeIds.clear(); selectionMenu.classList.remove('show'); updatePageUI(); renderAll(); }
+  function switchPage(index) { 
+    if (index < 0 || index >= state.pages.length) return; 
+    state.currentPageIndex = index; state.selectedStrokeIds.clear(); selectionMenu.classList.remove('show'); 
+    state.activeRuler = null; toolControl.classList.remove('show');
+    updatePageUI(); initHistory(); renderAll(); 
+  }
   btnPrevPage.addEventListener('pointerdown', (e) => { e.preventDefault(); switchPage(state.currentPageIndex - 1); });
   btnNextPage.addEventListener('pointerdown', (e) => { e.preventDefault(); switchPage(state.currentPageIndex + 1); });
-  btnAddPage.addEventListener('pointerdown', (e) => { e.preventDefault(); if (state.pages.length >= state.maxPages) return; state.pages.push({ strokes: [] }); switchPage(state.pages.length - 1); });
+  btnAddPage.addEventListener('pointerdown', (e) => { e.preventDefault(); if (state.pages.length >= state.maxPages) return; state.pages.push({ strokes: [], rulers: [] }); switchPage(state.pages.length - 1); });
 
   const colors = ['#000000', '#FFFFFF', '#FF0000', '#2196F3', '#4CAF50', '#FFEB3B', '#9C27B0', '#FF9800', '#795548', '#9E9E9E', '#FFCDD2', '#BDBDBD'];
   const colorGrid = document.getElementById('colorGrid');
   colors.forEach((c, i) => {
     const div = document.createElement('div'); 
     div.className = 'color-cell' + (c === state.color ? ' active' : ''); 
-    div.style.background = c;
-    div.dataset.color = c;
+    div.style.background = c; div.dataset.color = c;
     if (c === '#FFFFFF') div.style.border = '1px solid #ccc';
     div.addEventListener('pointerdown', (e) => { e.preventDefault(); setColor(c); });
     colorGrid.appendChild(div);
   });
   
-  const sizeSlider = document.getElementById('sizeSlider');
-  const sizeDot = document.getElementById('sizeDot');
+  const sizeSlider = document.getElementById('sizeSlider'), sizeDot = document.getElementById('sizeDot');
   sizeSlider.addEventListener('input', (e) => {
     state.size = parseInt(e.target.value, 10);
     sizeDot.style.width = sizeDot.style.height = Math.min(state.size, 20) + 'px';
   });
   sizeDot.style.width = sizeDot.style.height = Math.min(state.size, 20) + 'px';
+
+  const eraserSizeSlider = document.getElementById('eraserSizeSlider');
+  eraserSizeSlider.addEventListener('input', (e) => {
+    state.eraserSize = parseInt(e.target.value, 10);
+    if (eraserCursor.style.display === 'block') {
+      eraserCursor.style.width = state.eraserSize + 'px';
+      eraserCursor.style.height = state.eraserSize + 'px';
+    }
+  });
 
   document.querySelectorAll('.brush-type-btn').forEach(btn => {
     btn.addEventListener('pointerdown', (e) => {
@@ -885,12 +1682,16 @@
   });
   document.getElementById('btnDirectClear').addEventListener('pointerdown', (e) => {
     e.preventDefault();
-    if (getStrokes().length > 0) { state.pages[state.currentPageIndex].strokes = []; state.selectedStrokeIds.clear(); renderAll(); }
+    if (getStrokes().length > 0) { 
+      state.pages[state.currentPageIndex].strokes = []; state.selectedStrokeIds.clear(); 
+      renderAll(); saveState(); 
+    }
     closeAllPanels();
   });
 
   resizeCanvas();
   updatePageUI();
+  initHistory(); 
 })();
 </script>
 </body>
