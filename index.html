@@ -108,4 +108,790 @@
     z-index: 200; display: none; padding: 12px;
     flex-direction: column; gap: 12px; color: var(--theme-text);
   }
-  .float-panel.show { d
+  .float-panel.show { display: flex; }
+  .panel-arrow {
+    position: absolute; bottom: -6px; width: 12px; height: 12px;
+    background: var(--theme-panel); border-right: 1px solid var(--theme-border); border-bottom: 1px solid var(--theme-border);
+    transform: rotate(45deg); left: 50%; margin-left: -6px;
+  }
+
+  #penSettings { width: 260px; left: 50%; transform: translateX(-50%); }
+  .panel-row { display: flex; flex-direction: column; gap: 6px; }
+  .panel-title { font-size: 11px; color: var(--theme-text-dim); margin-bottom: 2px; }
+  
+  .brush-types { display: flex; gap: 4px; flex-wrap: wrap; }
+  .brush-type-btn {
+    padding: 4px 10px; border-radius: 6px; background: var(--theme-hover);
+    border: 1px solid var(--theme-border); color: var(--theme-text); font-size: 12px;
+    cursor: pointer;
+  }
+  .brush-type-btn.active { background: var(--theme-active); color: #FFF; border-color: var(--theme-active); }
+
+  .color-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px; }
+  .color-cell {
+    width: 28px; height: 28px; border-radius: 50%; cursor: pointer;
+    border: 2px solid transparent; transition: transform 0.1s;
+  }
+  .color-cell:hover { transform: scale(1.15); }
+  .color-cell.active { border-color: #FFF; box-shadow: 0 0 0 2px var(--theme-active); }
+
+  .size-slider-row { display: flex; align-items: center; gap: 10px; }
+  .size-slider-row input[type=range] {
+    flex: 1; height: 4px; -webkit-appearance: none; background: #555; border-radius: 2px; outline: none;
+  }
+  .size-slider-row input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance: none; width: 16px; height: 16px; border-radius: 50%; background: var(--theme-active); cursor: pointer;
+    border: 2px solid #FFF; box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+  }
+  #sizePreview {
+    width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;
+    background: var(--theme-hover); border-radius: 6px; border: 1px solid var(--theme-border);
+  }
+  #sizeDot { background: var(--theme-text); border-radius: 50%; }
+
+  #eraserSettings { width: 180px; left: 50%; transform: translateX(-50%); align-items: center; }
+  .eraser-action {
+    width: 100%; padding: 10px; border-radius: 8px; background: var(--theme-hover);
+    border: 1px solid var(--theme-border); color: var(--theme-text); cursor: pointer; text-align: center;
+    font-size: 13px; transition: all 0.2s;
+  }
+  .eraser-action:hover { background: #E53935; border-color: #E53935; color: #FFF; }
+
+  #settingsPanel {
+    position: absolute; bottom: 80px; left: 20px;
+    width: 260px; background: var(--theme-panel); border: 1px solid var(--theme-border);
+    border-radius: 12px; padding: 16px; box-shadow: 0 8px 30px rgba(0,0,0,0.2);
+    display: none; flex-direction: column; gap: 16px; z-index: 200; color: var(--theme-text);
+  }
+  #settingsPanel.show { display: flex; }
+  .setting-section { display: flex; flex-direction: column; gap: 8px; }
+  .setting-label { font-size: 12px; color: var(--theme-text-dim); }
+  .theme-btns { display: flex; gap: 8px; }
+  .theme-btn {
+    flex: 1; height: 36px; border-radius: 8px; border: 2px solid transparent;
+    background: var(--theme-hover); color: var(--theme-text); cursor: pointer; font-size: 12px;
+  }
+  .theme-btn.active { border-color: var(--theme-active); }
+  .board-colors { display: flex; gap: 8px; }
+  .board-color {
+    width: 36px; height: 36px; border-radius: 50%; border: 2px solid transparent; cursor: pointer;
+  }
+  .board-color.active { border-color: var(--theme-active); box-shadow: 0 0 0 2px var(--theme-panel) inset; }
+
+  .brightness-row { display: flex; align-items: center; gap: 8px; margin-top: 8px; }
+  .brightness-row input[type=range] { flex: 1; height: 4px; -webkit-appearance: none; background: #555; border-radius: 2px; }
+  .brightness-row input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 14px; height: 14px; border-radius: 50%; background: #0078D7; cursor: pointer; }
+
+  #selectionMenu {
+    position: absolute; display: none; background: var(--theme-panel);
+    border-radius: 10px; box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+    border: 1px solid var(--theme-border); padding: 8px 12px; gap: 10px; align-items: center;
+    z-index: 150; transform: translateX(-50%);
+  }
+  #selectionMenu.show { display: flex; }
+  .sm-btn {
+    background: var(--theme-hover); border: 1px solid var(--theme-border); color: var(--theme-text);
+    border-radius: 6px; padding: 6px 12px; font-size: 13px; cursor: pointer; transition: all 0.2s;
+  }
+  .sm-btn:hover { background: var(--theme-border); }
+  .sm-btn.danger { color: #ff6b6b; border-color: rgba(255,107,107,0.5); }
+  .sm-btn.danger:hover { background: #ff6b6b; color: #FFF; }
+  .sm-divider { width: 1px; height: 18px; background: var(--theme-border); margin: 0 4px; }
+  .sm-color { width: 22px; height: 22px; border-radius: 50%; cursor: pointer; border: 2px solid transparent; transition: transform 0.1s; }
+  .sm-color:hover { transform: scale(1.15); }
+</style>
+</head>
+<body class="dark-mode">
+
+<div id="rotateTip">
+  <svg viewBox="0 0 24 24" fill="none" stroke="#0078D7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect><line x1="12" y1="18" x2="12.01" y2="18"></line></svg>
+  <p>请将手机横屏，以获得最佳书写体验</p>
+  <button id="btnFullscreen">点击全屏并横屏</button>
+</div>
+
+<div id="brightnessMask"></div>
+
+<div id="canvasContainer">
+  <canvas id="bgCanvas" style="position:absolute; inset:0; width:100%; height:100%; z-index:1; pointer-events:none;"></canvas>
+  <canvas id="mainCanvas"></canvas>
+  <div id="eraserCursor"></div>
+  
+  <div id="selectionMenu">
+    <button class="sm-btn" id="smClone">克隆</button>
+    <button class="sm-btn danger" id="smDelete">删除</button>
+    <div class="sm-divider"></div>
+    <div id="smColors" style="display:flex; gap:6px;"></div>
+  </div>
+</div>
+
+<button id="btnSettings" title="设置">
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+</button>
+
+<div id="settingsPanel">
+  <div class="setting-section">
+    <div class="setting-label">界面主题</div>
+    <div class="theme-btns">
+      <button class="theme-btn active" data-theme="dark">深色模式</button>
+      <button class="theme-btn" data-theme="light">浅色模式</button>
+    </div>
+  </div>
+  <div class="setting-section">
+    <div class="setting-label">画板底色</div>
+    <div class="board-colors">
+      <div class="board-color active" style="background:#1E1E1E; border:1px solid #444;" data-color="#1E1E1E"></div>
+      <div class="board-color" style="background:#FFFFFF; border:1px solid #ccc;" data-color="#FFFFFF"></div>
+      <div class="board-color" style="background:#CCE8CF; border:1px solid #ccc;" data-color="#CCE8CF"></div>
+      <div class="board-color" style="background:#F5F5DC; border:1px solid #ccc;" data-color="#F5F5DC"></div>
+    </div>
+  </div>
+  <div class="setting-section">
+    <div class="setting-label">亮度调节（护眼遮罩）</div>
+    <div class="brightness-row">
+      <input type="range" id="brightnessSlider" min="0" max="60" value="0">
+    </div>
+  </div>
+</div>
+
+<div id="pageControls">
+  <button class="page-btn" id="btnPrevPage" disabled>◀</button>
+  <span id="pageIndicator">1 / 1</span>
+  <button class="page-btn" id="btnNextPage" disabled>▶</button>
+  <button class="page-btn" id="btnAddPage" style="font-size:20px; font-weight:bold; margin-left:4px;">+</button>
+</div>
+
+<div id="bottomToolbar">
+  <button class="tool-btn" id="btnSelect" data-tool="select">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3l7.07 16.97 2.51-7.39 7.39-2.51L3 3z"></path></svg>
+    <span class="label">选择</span>
+  </button>
+  <button class="tool-btn active" id="btnPen" data-tool="pen">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>
+    <span class="label">画笔</span>
+  </button>
+  <button class="tool-btn" id="btnEraser" data-tool="eraser">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 21H8L3 16c-1-1-1-2.5 0-3.5l9.5-9.5c1-1 2.5-1 3.5 0l5 5c1 1 1 2.5 0 3.5L12 21"></path><path d="M15 10 9 4"></path></svg>
+    <span class="label">橡皮</span>
+  </button>
+</div>
+
+<div class="float-panel" id="penSettings">
+  <div class="panel-row">
+    <div class="panel-title">笔刷类型</div>
+    <div class="brush-types" id="brushTypes">
+      <button class="brush-type-btn active" data-brush="default">默认</button>
+      <button class="brush-type-btn" data-brush="ballpoint">圆珠笔</button>
+      <button class="brush-type-btn" data-brush="pencil">铅笔</button>
+    </div>
+  </div>
+  <div class="panel-row">
+    <div class="panel-title">颜色</div>
+    <div class="color-grid" id="colorGrid"></div>
+  </div>
+  <div class="panel-row">
+    <div class="panel-title">粗细滑动调节</div>
+    <div class="size-slider-row">
+      <div id="sizePreview"><div id="sizeDot" style="width:4px;height:4px;"></div></div>
+      <input type="range" id="sizeSlider" min="1" max="30" value="4" step="1">
+    </div>
+  </div>
+  <div class="panel-arrow"></div>
+</div>
+
+<div class="float-panel" id="eraserSettings">
+  <div class="eraser-action" id="btnAreaClear">区域清除</div>
+  <div class="eraser-action" id="btnDirectClear" style="color:#ff6b6b; border-color:#ff6b6b;">直接清除</div>
+  <div class="panel-arrow"></div>
+</div>
+
+<script>
+(() => {
+  'use strict';
+
+  // ==================== 屏幕与横屏适配 ====================
+  const rotateTip = document.getElementById('rotateTip');
+  const brightnessMask = document.getElementById('brightnessMask');
+
+  function checkOrientation() {
+    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    if (isMobile && window.innerHeight > window.innerWidth && !document.fullscreenElement) {
+      rotateTip.classList.add('show');
+    } else {
+      rotateTip.classList.remove('show');
+      setTimeout(resizeCanvas, 100);
+    }
+  }
+
+  document.getElementById('btnFullscreen').addEventListener('pointerdown', async (e) => {
+    e.preventDefault();
+    try {
+      if (document.documentElement.requestFullscreen) await document.documentElement.requestFullscreen();
+      else if (document.documentElement.webkitRequestFullscreen) await document.documentElement.webkitRequestFullscreen();
+      if (screen.orientation && screen.orientation.lock) await screen.orientation.lock('landscape');
+    } catch (err) { console.log('全屏失败', err); }
+    rotateTip.classList.remove('show');
+    setTimeout(resizeCanvas, 300);
+  });
+
+  window.addEventListener('resize', checkOrientation);
+  window.addEventListener('orientationchange', () => setTimeout(checkOrientation, 200));
+  checkOrientation();
+
+  const brightnessSlider = document.getElementById('brightnessSlider');
+  brightnessSlider.addEventListener('input', (e) => {
+    brightnessMask.style.opacity = (e.target.value / 100);
+  });
+
+  // ==================== 全局状态 ====================
+  const state = {
+    tool: 'pen',
+    color: '#FFFFFF', size: 4, 
+    brushType: 'default',
+    pages: [{ strokes: [] }],
+    currentPageIndex: 0,
+    maxPages: 300,
+    activeStrokes: new Map(), 
+    isErasing: false, eraserPointerId: null,
+    lastErasePos: null, 
+    selectionBox: null, 
+    selectedStrokeIds: new Set(), 
+    isBoxSelecting: false, boxSelectStart: null, boxSelectEnd: null,
+    selectionPointerId: null, 
+    isDraggingSelection: false, dragStartPos: null,
+    isAreaClearMode: false, areaClearStart: null, areaClearEnd: null,
+    areaClearPointerId: null,
+    boardBg: '#1E1E1E'
+  };
+
+  const mainCanvas = document.getElementById('mainCanvas');
+  const ctx = mainCanvas.getContext('2d', { willReadFrequently: true });
+  const bgCanvas = document.getElementById('bgCanvas');
+  const bgCtx = bgCanvas.getContext('2d', { willReadFrequently: true });
+  
+  const selectionMenu = document.getElementById('selectionMenu');
+  let dpr = window.devicePixelRatio || 1;
+  let strokeIdCounter = 0;
+  let prevWidth = 0, prevHeight = 0;
+
+  function getStrokes() { return state.pages[state.currentPageIndex].strokes; }
+
+  function resizeCanvas() {
+    const rect = mainCanvas.parentElement.getBoundingClientRect();
+    const newW = rect.width, newH = rect.height;
+    
+    if (prevWidth > 0 && prevHeight > 0 && (Math.abs(newW - prevWidth) > 50 || Math.abs(newH - prevHeight) > 50)) {
+      const scaleX = newW / prevWidth, scaleY = newH / prevHeight;
+      state.pages.forEach(page => {
+        page.strokes.forEach(s => {
+          s.points.forEach(p => { p.x *= scaleX; p.y *= scaleY; });
+        });
+      });
+    }
+    prevWidth = newW; prevHeight = newH;
+
+    mainCanvas.width = newW * dpr; mainCanvas.height = newH * dpr;
+    mainCanvas.style.width = newW + 'px'; mainCanvas.style.height = newH + 'px';
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+    bgCanvas.width = newW * dpr; bgCanvas.height = newH * dpr;
+    bgCanvas.style.width = newW + 'px'; bgCanvas.style.height = newH + 'px';
+    bgCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+    renderAll();
+  }
+
+  // ==================== 性能渲染核心 ====================
+  function renderAll() {
+    const w = mainCanvas.width / dpr, h = mainCanvas.height / dpr;
+    bgCtx.clearRect(0, 0, w, h);
+    bgCtx.fillStyle = state.boardBg;
+    bgCtx.fillRect(0, 0, w, h);
+
+    getStrokes().forEach(s => drawStroke(bgCtx, s));
+    
+    ctx.clearRect(0, 0, w, h);
+    ctx.drawImage(bgCanvas, 0, 0, w, h);
+    
+    if (state.tool === 'select') drawSelectionUI(w, h);
+    if (state.isBoxSelecting && state.boxSelectStart && state.boxSelectEnd) drawDashedBox(ctx, state.boxSelectStart, state.boxSelectEnd, '#4A9EFF');
+    if (state.isAreaClearMode && state.areaClearStart && state.areaClearEnd) drawDashedBox(ctx, state.areaClearStart, state.areaClearEnd, '#4A9EFF');
+  }
+
+  function renderCurrent() {
+    const w = mainCanvas.width / dpr, h = mainCanvas.height / dpr;
+    ctx.clearRect(0, 0, w, h);
+    ctx.drawImage(bgCanvas, 0, 0, w, h);
+    state.activeStrokes.forEach(s => drawStroke(ctx, s));
+  }
+
+  function drawStroke(context, stroke) {
+    const pts = stroke.points;
+    if (!pts || pts.length === 0) return;
+
+    context.save();
+    context.strokeStyle = stroke.color;
+    context.fillStyle = stroke.color;
+    context.lineCap = 'round';
+    context.lineJoin = 'round';
+
+    if (pts.length === 1) {
+      context.beginPath();
+      context.arc(pts[0].x, pts[0].y, stroke.size / 2, 0, Math.PI * 2);
+      context.fill();
+      context.restore();
+      return;
+    }
+
+    const brush = stroke.brushType || 'default';
+
+    if (brush === 'ballpoint') {
+      context.lineWidth = stroke.size;
+      context.beginPath();
+      context.moveTo(pts[0].x, pts[0].y);
+      for (let i = 1; i < pts.length; i++) context.lineTo(pts[i].x, pts[i].y);
+      context.stroke();
+      context.restore();
+      return;
+    }
+
+    if (brush === 'pencil') {
+      context.globalAlpha = 0.45;
+      const dotSize = Math.max(0.6, stroke.size * 0.25);
+      for (let i = 1; i < pts.length; i++) {
+        const p1 = pts[i-1], p2 = pts[i];
+        const dist = Math.hypot(p2.x - p1.x, p2.y - p1.y);
+        const steps = Math.max(1, Math.floor(dist / 1));
+        for (let s = 0; s < steps; s++) {
+          const t = s / steps;
+          const x = p1.x + (p2.x - p1.x) * t;
+          const y = p1.y + (p2.y - p1.y) * t;
+          for (let j = 0; j < 8; j++) {
+            let n1 = Math.sin((x + j * 17.3) * 12.9898 + (y + j * 9.1) * 78.233) * 43758.5453;
+            n1 = n1 - Math.floor(n1);
+            let n2 = Math.sin((y + j * 13.7) * 12.9898 + (x + j * 5.9) * 78.233) * 43758.5453;
+            n2 = n2 - Math.floor(n2);
+            
+            const rx = x + (n1 - 0.5) * stroke.size * 2.2;
+            const ry = y + (n2 - 0.5) * stroke.size * 2.2;
+            context.beginPath();
+            context.arc(rx, ry, dotSize, 0, Math.PI * 2);
+            context.fill();
+          }
+        }
+      }
+      context.restore();
+      return;
+    }
+
+    // 默认平滑笔锋
+    const rawSpeeds = [];
+    for (let i = 1; i < pts.length; i++) {
+      rawSpeeds.push(Math.hypot(pts[i].x - pts[i-1].x, pts[i].y - pts[i-1].y));
+    }
+    const smoothSpeeds = [];
+    for (let i = 0; i < rawSpeeds.length; i++) {
+      let sum = 0, count = 0;
+      for (let j = Math.max(0, i - 3); j <= Math.min(rawSpeeds.length - 1, i + 3); j++) {
+        sum += rawSpeeds[j]; count++;
+      }
+      smoothSpeeds.push(sum / count);
+    }
+
+    const baseWidths = [];
+    for (let i = 0; i < smoothSpeeds.length; i++) {
+      let pFactor = Math.max(0.5, Math.min(1.0, 1 - smoothSpeeds[i] / 40));
+      if (pts[i+1].pressure && pts[i+1].pressure !== 0.5) pFactor = pts[i+1].pressure;
+      let w = stroke.size * (0.4 + pFactor * 1.1);
+      baseWidths.push(w);
+    }
+
+    const smoothWidths = [];
+    for (let i = 0; i < baseWidths.length; i++) {
+      let sum = 0, count = 0;
+      for (let j = Math.max(0, i - 4); j <= Math.min(baseWidths.length - 1, i + 4); j++) {
+        sum += baseWidths[j]; count++;
+      }
+      smoothWidths.push(sum / count);
+    }
+
+    const transitionLen = Math.min(20, Math.floor(smoothWidths.length / 4));
+    for (let i = 0; i < transitionLen; i++) {
+      const t = i / transitionLen; const ease = t * t * (3 - 2 * t);
+      const startMin = stroke.size * 0.4;
+      smoothWidths[i] = smoothWidths[i] * ease + startMin * (1 - ease);
+    }
+    for (let i = 0; i < transitionLen; i++) {
+      const t = i / transitionLen; const ease = t * t * (3 - 2 * t);
+      const endMin = stroke.size * 0.4;
+      smoothWidths[smoothWidths.length - 1 - i] = smoothWidths[smoothWidths.length - 1 - i] * ease + endMin * (1 - ease);
+    }
+
+    for (let i = 0; i < pts.length - 1; i++) {
+      const p1 = pts[i], p2 = pts[i + 1];
+      const w1 = smoothWidths[i], w2 = smoothWidths[i + 1];
+      const dist = Math.hypot(p2.x - p1.x, p2.y - p1.y);
+      const steps = Math.max(1, Math.floor(dist / 1.5));
+      for (let s = 0; s < steps; s++) {
+        const t1 = s / steps, t2 = (s + 1) / steps;
+        const x1 = p1.x + (p2.x - p1.x) * t1, y1 = p1.y + (p2.y - p1.y) * t1;
+        const x2 = p1.x + (p2.x - p1.x) * t2, y2 = p1.y + (p2.y - p1.y) * t2;
+        const currentW = w1 + (w2 - w1) * t1; 
+        context.lineWidth = Math.max(0.5, currentW);
+        context.beginPath();
+        context.moveTo(x1, y1);
+        context.lineTo(x2, y2);
+        context.stroke();
+      }
+    }
+    context.restore();
+  }
+
+  // ... UI 绘制相关逻辑 ...
+  function drawSelectionUI(w, h) {
+    if (state.selectedStrokeIds.size === 0) { selectionMenu.classList.remove('show'); return; }
+    let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+    getStrokes().forEach(s => {
+      if (state.selectedStrokeIds.has(s.id)) {
+        s.points.forEach(p => { minX = Math.min(minX, p.x); minY = Math.min(minY, p.y); maxX = Math.max(maxX, p.x); maxY = Math.max(maxY, p.y); });
+      }
+    });
+    if (minX === Infinity) return;
+    const pad = 12; minX -= pad; minY -= pad; maxX += pad; maxY += pad;
+    state.selectionBBox = { minX, minY, maxX, maxY };
+    ctx.save(); ctx.strokeStyle = '#4A9EFF'; ctx.lineWidth = 1.5; ctx.setLineDash([6, 4]); ctx.strokeRect(minX, minY, maxX - minX, maxY - minY); ctx.setLineDash([]);
+    drawHandle(minX, minY, '#FFFFFF'); drawHandle(maxX, minY, '#FFFFFF'); drawHandle(minX, maxY, '#FFFFFF'); drawHandle(maxX, maxY, '#FFFFFF'); drawHandle((minX + maxX) / 2, minY - 20, '#8BC34A');
+    ctx.restore();
+    selectionMenu.classList.add('show'); selectionMenu.style.left = ((minX + maxX) / 2) + 'px';
+    let menuTop = maxY + 15; if (menuTop + 50 > h) menuTop = minY - 55; selectionMenu.style.top = Math.max(10, menuTop) + 'px';
+  }
+  function drawHandle(x, y, color) { ctx.beginPath(); ctx.arc(x, y, 6, 0, Math.PI * 2); ctx.fillStyle = color; ctx.fill(); ctx.strokeStyle = '#4A9EFF'; ctx.lineWidth = 1.5; ctx.stroke(); }
+  function drawDashedBox(context, start, end, color) { const x = Math.min(start.x, end.x), y = Math.min(start.y, end.y); const w = Math.abs(end.x - start.x), h = Math.abs(end.y - start.y); context.save(); context.strokeStyle = color; context.lineWidth = 1.5; context.setLineDash([8, 6]); context.strokeRect(x, y, w, h); context.fillStyle = 'rgba(74, 158, 255, 0.08)'; context.fillRect(x, y, w, h); context.restore(); }
+  function getPos(e, rect) { return { x: e.clientX - rect.left, y: e.clientY - rect.top, pressure: e.pressure !== undefined ? e.pressure : 0.5 }; }
+
+  // ==================== 橡皮擦逻辑 ====================
+  function eraseLocal(cx, cy, strokes) {
+    const rect = mainCanvas.getBoundingClientRect(); const ex = cx - rect.left, ey = cy - rect.top;
+    const eraserRadius = 22; let globalChanged = false;
+    for (let i = strokes.length - 1; i >= 0; i--) {
+      const stroke = strokes[i]; const newSegments = []; let currentSegment = []; let strokeChanged = false;
+      
+      for (const p of stroke.points) {
+        const dist = Math.hypot(p.x - ex, p.y - ey);
+        if (dist > eraserRadius) currentSegment.push(p);
+        else { if (currentSegment.length > 0) { newSegments.push(currentSegment); currentSegment = []; } strokeChanged = true; }
+      }
+      if (currentSegment.length > 0) newSegments.push(currentSegment);
+      if (strokeChanged) {
+        strokes.splice(i, 1);
+        newSegments.forEach(seg => { if (seg.length > 0) strokes.push({ ...stroke, id: ++strokeIdCounter, points: seg }); });
+        globalChanged = true;
+      }
+    }
+    return globalChanged;
+  }
+
+  function performEraserInterpolate(e) {
+    const rect = mainCanvas.getBoundingClientRect();
+    const pos = getPos(e, rect);
+    let changed = false;
+
+    if (state.lastErasePos) {
+      const dist = Math.hypot(pos.x - state.lastErasePos.x, pos.y - state.lastErasePos.y);
+      const steps = Math.ceil(dist / 5);
+      for (let i = 1; i <= steps; i++) {
+        const t = i / steps;
+        const ix = state.lastErasePos.x + (pos.x - state.lastErasePos.x) * t;
+        const iy = state.lastErasePos.y + (pos.y - state.lastErasePos.y) * t;
+        if (eraseLocal(ix + rect.left, iy + rect.top, getStrokes())) changed = true;
+      }
+    } else {
+      if (eraseLocal(e.clientX, e.clientY, getStrokes())) changed = true;
+    }
+    state.lastErasePos = pos;
+    if (changed) renderAll();
+  }
+
+  function eraseByRect(x1, y1, x2, y2) {
+    const minX = Math.min(x1, x2), maxX = Math.max(x1, x2); const minY = Math.min(y1, y2), maxY = Math.max(y1, y2);
+    const strokes = getStrokes(); let globalChanged = false;
+    for (let i = strokes.length - 1; i >= 0; i--) {
+      const stroke = strokes[i]; const newSegments = []; let currentSegment = []; let strokeChanged = false;
+      for (const p of stroke.points) {
+        if (p.x >= minX && p.x <= maxX && p.y >= minY && p.y <= maxY) { if (currentSegment.length > 0) { newSegments.push(currentSegment); currentSegment = []; } strokeChanged = true; }
+        else currentSegment.push(p);
+      }
+      if (currentSegment.length > 0) newSegments.push(currentSegment);
+      if (strokeChanged) {
+        strokes.splice(i, 1);
+        newSegments.forEach(seg => { if (seg.length > 0) strokes.push({ ...stroke, id: ++strokeIdCounter, points: seg }); });
+        globalChanged = true;
+      }
+    }
+    return globalChanged;
+  }
+
+  const eraserCursor = document.getElementById('eraserCursor');
+  
+  mainCanvas.addEventListener('pointerdown', (e) => {
+    if (e.button !== undefined && e.button !== 0) return;
+
+    const rect = mainCanvas.getBoundingClientRect(); const pos = getPos(e, rect);
+    if (state.tool === 'select') {
+      if (state.selectionPointerId !== null) return;
+      if (state.selectedStrokeIds.size > 0 && state.selectionBBox) {
+        const { minX, minY, maxX, maxY } = state.selectionBBox;
+        if (pos.x >= minX && pos.x <= maxX && pos.y >= minY && pos.y <= maxY) {
+          state.isDraggingSelection = true; state.dragStartPos = pos; state.selectionPointerId = e.pointerId; mainCanvas.setPointerCapture(e.pointerId); return;
+        }
+      }
+      state.isBoxSelecting = true; state.boxSelectStart = pos; state.boxSelectEnd = pos; state.selectionPointerId = e.pointerId;
+      state.selectedStrokeIds.clear(); selectionMenu.classList.remove('show'); mainCanvas.setPointerCapture(e.pointerId); renderAll(); return;
+    }
+    if (state.tool === 'eraser' && state.isAreaClearMode) {
+      if (state.areaClearPointerId !== null) return;
+      state.areaClearPointerId = e.pointerId; mainCanvas.setPointerCapture(e.pointerId); state.areaClearStart = pos; state.areaClearEnd = pos; renderAll(); return;
+    }
+    if (state.tool === 'eraser' && !state.isAreaClearMode) {
+      if (!state.isErasing) {
+        state.isErasing = true; state.eraserPointerId = e.pointerId; mainCanvas.setPointerCapture(e.pointerId);
+        state.lastErasePos = null; 
+        showEraserCursor(e.clientX, e.clientY);
+        performEraserInterpolate(e);
+      }
+      return;
+    }
+    if (state.tool === 'pen') {
+      mainCanvas.setPointerCapture(e.pointerId);
+      const stroke = { color: state.color, size: state.size, points: [pos], id: ++strokeIdCounter, brushType: state.brushType };
+      state.activeStrokes.set(e.pointerId, stroke); renderCurrent();
+    }
+  });
+
+  mainCanvas.addEventListener('pointermove', (e) => {
+    const rect = mainCanvas.getBoundingClientRect(); const pos = getPos(e, rect);
+    if (state.tool === 'select' && state.isDraggingSelection && e.pointerId === state.selectionPointerId) {
+      const dx = pos.x - state.dragStartPos.x, dy = pos.y - state.dragStartPos.y;
+      state.selectedStrokeIds.forEach(id => {
+        const stroke = getStrokes().find(s => s.id === id);
+        if (stroke) { 
+          stroke.points.forEach(p => { p.x += dx; p.y += dy; }); 
+        }
+      });
+      state.dragStartPos = pos; renderAll(); return;
+    }
+    if (state.tool === 'select' && state.isBoxSelecting && e.pointerId === state.selectionPointerId) {
+      state.boxSelectEnd = pos; renderAll(); return;
+    }
+    if (state.tool === 'eraser' && state.isAreaClearMode && e.pointerId === state.areaClearPointerId) {
+      state.areaClearEnd = pos; renderAll(); return;
+    }
+    if (state.tool === 'eraser' && state.isErasing && e.pointerId === state.eraserPointerId) {
+      showEraserCursor(e.clientX, e.clientY);
+      performEraserInterpolate(e); 
+      return;
+    }
+    if (state.tool === 'pen' && state.activeStrokes.has(e.pointerId)) {
+      const stroke = state.activeStrokes.get(e.pointerId);
+      const events = e.getCoalescedEvents ? e.getCoalescedEvents() : [e];
+      let hasNewPoint = false;
+      events.forEach(ev => {
+        const newPos = getPos(ev, rect);
+        const lastPos = stroke.points[stroke.points.length - 1];
+        const dist = Math.hypot(newPos.x - lastPos.x, newPos.y - lastPos.y);
+        if (dist > 1.5 || ev.pointerType === 'pen') {
+          stroke.points.push(newPos);
+          hasNewPoint = true;
+        }
+      });
+      if (hasNewPoint) renderCurrent();
+    }
+  });
+
+  const endPointer = (e) => {
+    if (state.tool === 'select' && state.isDraggingSelection && e.pointerId === state.selectionPointerId) { state.isDraggingSelection = false; state.selectionPointerId = null; return; }
+    if (state.tool === 'select' && state.isBoxSelecting && e.pointerId === state.selectionPointerId) {
+      state.isBoxSelecting = false; state.selectionPointerId = null;
+      const start = state.boxSelectStart, end = state.boxSelectEnd;
+      if (start && end) {
+        const minX = Math.min(start.x, end.x), maxX = Math.max(start.x, end.x);
+        const minY = Math.min(start.y, end.y), maxY = Math.max(start.y, end.y);
+        if (maxX - minX < 5 && maxY - minY < 5) { getStrokes().forEach(s => { s.points.forEach(p => { if (Math.hypot(p.x - start.x, p.y - start.y) < 20) state.selectedStrokeIds.add(s.id); }); }); }
+        else { getStrokes().forEach(s => {
+          const inside = s.points.every(p => p.x >= minX && p.x <= maxX && p.y >= minY && p.y <= maxY); 
+          const intersect = s.points.some(p => p.x >= minX && p.x <= maxX && p.y >= minY && p.y <= maxY); 
+          if (inside || intersect) state.selectedStrokeIds.add(s.id); 
+        }); }
+      }
+      state.boxSelectStart = null; state.boxSelectEnd = null; renderAll(); return;
+    }
+    if (state.tool === 'eraser' && state.isAreaClearMode && e.pointerId === state.areaClearPointerId) {
+      state.areaClearPointerId = null;
+      const start = state.areaClearStart, end = state.areaClearEnd;
+      if (start && end && (Math.abs(end.x - start.x) > 5 || Math.abs(end.y - start.y) > 5)) {
+        if (eraseByRect(start.x, start.y, end.x, end.y)) renderAll();
+      }
+      state.areaClearStart = null; state.areaClearEnd = null; state.isAreaClearMode = false; renderAll(); return;
+    }
+    if (state.tool === 'eraser' && state.isErasing && e.pointerId === state.eraserPointerId) { state.isErasing = false; state.eraserPointerId = null; state.lastErasePos = null; eraserCursor.style.display = 'none'; return; }
+    if (state.tool === 'pen' && state.activeStrokes.has(e.pointerId)) {
+      const stroke = state.activeStrokes.get(e.pointerId);
+      
+      if (stroke.points.length > 0) getStrokes().push(stroke);
+      state.activeStrokes.delete(e.pointerId); 
+      renderAll(); 
+    }
+  };
+
+  mainCanvas.addEventListener('pointerup', endPointer);
+  mainCanvas.addEventListener('pointercancel', endPointer);
+  mainCanvas.addEventListener('pointerleave', (e) => { if (e.pointerType === 'mouse') endPointer(e); });
+  
+  function showEraserCursor(cx, cy) { const containerRect = document.getElementById('canvasContainer').getBoundingClientRect(); eraserCursor.style.display = 'block'; eraserCursor.style.left = (cx - containerRect.left) + 'px'; eraserCursor.style.top = (cy - containerRect.top) + 'px'; }
+
+  // ==================== 背景色与画笔颜色自动适配 ====================
+  function adaptColorToBg() {
+    const isDarkBg = (state.boardBg === '#1E1E1E');
+    if (isDarkBg) {
+      if (state.color === '#000000') setColor('#FFFFFF');
+    } else {
+      if (state.color === '#FFFFFF') setColor('#000000');
+    }
+  }
+  function setColor(color) {
+    state.color = color;
+    document.querySelectorAll('.color-cell').forEach(el => {
+      if (el.dataset.color === color) el.classList.add('active');
+      else el.classList.remove('active');
+    });
+  }
+
+  // ==================== 工具栏与UI逻辑 ====================
+  document.getElementById('smDelete').addEventListener('pointerdown', (e) => {
+    e.preventDefault(); e.stopPropagation();
+    if (state.selectedStrokeIds.size === 0) return;
+    state.pages[state.currentPageIndex].strokes = getStrokes().filter(s => !state.selectedStrokeIds.has(s.id));
+    state.selectedStrokeIds.clear(); selectionMenu.classList.remove('show'); renderAll();
+  });
+  document.getElementById('smClone').addEventListener('pointerdown', (e) => {
+    e.preventDefault(); e.stopPropagation();
+    if (state.selectedStrokeIds.size === 0) return;
+    const newIds = new Set(); const offset = 20;
+    state.selectedStrokeIds.forEach(id => {
+      const original = getStrokes().find(s => s.id === id);
+      if (original) {
+        const newStroke = JSON.parse(JSON.stringify(original)); newStroke.id = ++strokeIdCounter;
+        newStroke.points.forEach(p => { p.x += offset; p.y += offset; });
+        getStrokes().push(newStroke); newIds.add(newStroke.id);
+      }
+    });
+    state.selectedStrokeIds = newIds; renderAll();
+  });
+  const smColors = document.getElementById('smColors');
+  ['#000000', '#FF0000', '#2196F3', '#4CAF50', '#FFEB3B', '#FFFFFF'].forEach(c => {
+    const div = document.createElement('div'); div.className = 'sm-color'; div.style.background = c; if (c === '#FFFFFF') div.style.border = '1px solid #ccc';
+    div.addEventListener('pointerdown', (e) => {
+      e.preventDefault(); e.stopPropagation();
+      if (state.selectedStrokeIds.size === 0) return;
+      state.selectedStrokeIds.forEach(id => { const stroke = getStrokes().find(s => s.id === id); if (stroke) stroke.color = c; });
+      renderAll();
+    });
+    smColors.appendChild(div);
+  });
+
+  const btnSelect = document.getElementById('btnSelect'), btnPen = document.getElementById('btnPen'), btnEraser = document.getElementById('btnEraser');
+  const penSettings = document.getElementById('penSettings'), eraserSettings = document.getElementById('eraserSettings'), settingsPanel = document.getElementById('settingsPanel');
+  function closeAllPanels() { penSettings.classList.remove('show'); eraserSettings.classList.remove('show'); settingsPanel.classList.remove('show'); }
+  function setTool(tool) {
+    state.tool = tool; state.activeStrokes.clear(); state.isErasing = false; state.isAreaClearMode = false;
+    state.selectedStrokeIds.clear(); state.boxSelectStart = null; state.boxSelectEnd = null;
+    state.areaClearStart = null; state.areaClearEnd = null; state.selectionPointerId = null; state.areaClearPointerId = null;
+    eraserCursor.style.display = 'none'; selectionMenu.classList.remove('show'); renderAll();
+    btnSelect.classList.toggle('active', tool === 'select'); btnPen.classList.toggle('active', tool === 'pen'); btnEraser.classList.toggle('active', tool === 'eraser');
+  }
+  btnSelect.addEventListener('pointerdown', (e) => { e.preventDefault(); e.stopPropagation(); setTool('select'); closeAllPanels(); });
+
+  btnPen.addEventListener('pointerdown', (e) => {
+    e.preventDefault(); e.stopPropagation();
+    if (state.tool !== 'pen') { setTool('pen'); closeAllPanels(); }
+    else { const isShowing = penSettings.classList.contains('show'); closeAllPanels(); if (!isShowing) penSettings.classList.add('show'); }
+  });
+
+  btnEraser.addEventListener('pointerdown', (e) => {
+    e.preventDefault(); e.stopPropagation();
+    if (state.tool !== 'eraser') { setTool('eraser'); closeAllPanels(); }
+    else { const isShowing = eraserSettings.classList.contains('show'); closeAllPanels(); if (!isShowing) eraserSettings.classList.add('show'); }
+  });
+
+  document.getElementById('btnSettings').addEventListener('pointerdown', (e) => {
+    e.preventDefault(); e.stopPropagation();
+    const isShowing = settingsPanel.classList.contains('show');
+    closeAllPanels(); if (!isShowing) settingsPanel.classList.add('show');
+  });
+  document.addEventListener('pointerdown', (e) => {
+    if (!e.target.closest('.float-panel') && !e.target.closest('.tool-btn') && !e.target.closest('#selectionMenu') && !e.target.closest('#btnSettings') && !e.target.closest('#settingsPanel')) closeAllPanels();
+  });
+
+  document.querySelectorAll('.theme-btn').forEach(btn => {
+    btn.addEventListener('pointerdown', (e) => {
+      e.preventDefault(); document.querySelectorAll('.theme-btn').forEach(b => b.classList.remove('active')); btn.classList.add('active');
+      if (btn.dataset.theme === 'light') { document.body.classList.add('light-mode'); }
+      else { document.body.classList.remove('light-mode'); }
+    });
+  });
+  document.querySelectorAll('.board-color').forEach(btn => {
+    btn.addEventListener('pointerdown', (e) => {
+      e.preventDefault(); document.querySelectorAll('.board-color').forEach(b => b.classList.remove('active')); btn.classList.add('active');
+      state.boardBg = btn.dataset.color; 
+      adaptColorToBg(); renderAll();
+    });
+  });
+
+  const pageIndicator = document.getElementById('pageIndicator'), btnPrevPage = document.getElementById('btnPrevPage'), btnNextPage = document.getElementById('btnNextPage'), btnAddPage = document.getElementById('btnAddPage');
+  function updatePageUI() { pageIndicator.textContent = `${state.currentPageIndex + 1} / ${state.pages.length}`; btnPrevPage.disabled = state.currentPageIndex === 0; btnNextPage.disabled = state.currentPageIndex === state.pages.length - 1; btnAddPage.disabled = state.pages.length >= state.maxPages; }
+  function switchPage(index) { if (index < 0 || index >= state.pages.length) return; state.currentPageIndex = index; state.selectedStrokeIds.clear(); selectionMenu.classList.remove('show'); updatePageUI(); renderAll(); }
+  btnPrevPage.addEventListener('pointerdown', (e) => { e.preventDefault(); switchPage(state.currentPageIndex - 1); });
+  btnNextPage.addEventListener('pointerdown', (e) => { e.preventDefault(); switchPage(state.currentPageIndex + 1); });
+  btnAddPage.addEventListener('pointerdown', (e) => { e.preventDefault(); if (state.pages.length >= state.maxPages) return; state.pages.push({ strokes: [] }); switchPage(state.pages.length - 1); });
+
+  const colors = ['#000000', '#FFFFFF', '#FF0000', '#2196F3', '#4CAF50', '#FFEB3B', '#9C27B0', '#FF9800', '#795548', '#9E9E9E', '#FFCDD2', '#BDBDBD'];
+  const colorGrid = document.getElementById('colorGrid');
+  colors.forEach((c, i) => {
+    const div = document.createElement('div'); 
+    div.className = 'color-cell' + (c === state.color ? ' active' : ''); 
+    div.style.background = c;
+    div.dataset.color = c;
+    if (c === '#FFFFFF') div.style.border = '1px solid #ccc';
+    div.addEventListener('pointerdown', (e) => { e.preventDefault(); setColor(c); });
+    colorGrid.appendChild(div);
+  });
+  
+  const sizeSlider = document.getElementById('sizeSlider');
+  const sizeDot = document.getElementById('sizeDot');
+  sizeSlider.addEventListener('input', (e) => {
+    state.size = parseInt(e.target.value, 10);
+    sizeDot.style.width = sizeDot.style.height = Math.min(state.size, 20) + 'px';
+  });
+  sizeDot.style.width = sizeDot.style.height = Math.min(state.size, 20) + 'px';
+
+  document.querySelectorAll('.brush-type-btn').forEach(btn => {
+    btn.addEventListener('pointerdown', (e) => {
+      e.preventDefault(); document.querySelectorAll('.brush-type-btn').forEach(b => b.classList.remove('active')); btn.classList.add('active'); state.brushType = btn.dataset.brush;
+    });
+  });
+
+  document.getElementById('btnAreaClear').addEventListener('pointerdown', (e) => {
+    e.preventDefault(); closeAllPanels(); state.isAreaClearMode = true; state.tool = 'eraser';
+    btnEraser.classList.add('active'); btnPen.classList.remove('active'); btnSelect.classList.remove('active');
+  });
+  document.getElementById('btnDirectClear').addEventListener('pointerdown', (e) => {
+    e.preventDefault();
+    if (getStrokes().length > 0) { state.pages[state.currentPageIndex].strokes = []; state.selectedStrokeIds.clear(); renderAll(); }
+    closeAllPanels();
+  });
+
+  resizeCanvas();
+  updatePageUI();
+})();
+</script>
+</body>
+</html>
